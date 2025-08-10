@@ -1,14 +1,20 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, type ReactNode } from 'react'
+import Image from 'next/image'
+import type React from 'react'
+import type { Variants } from 'framer-motion'
 import {
   SiHtml5, SiCss3, SiJavascript, SiReact, SiNextdotjs, SiTypescript, SiTailwindcss,
   SiNodedotjs, SiPython, SiPhp, SiGraphql, SiMongodb, SiMysql, SiPostgresql, SiFirebase, SiRedis, SiSqlite,
   SiGit, SiGithub, SiVscodium, SiDocker, SiAmazon, SiVercel, SiFigma
 } from 'react-icons/si';
+import ParallaxScene from '../components/ParallaxScene'
+import { projects } from '../data/projects'
+import { sendContactEmail } from '../lib/email'
 
-const frontendIcons: Record<string, JSX.Element> = {
+const frontendIcons: Record<string, ReactNode> = {
   'HTML5': <SiHtml5 className="text-orange-500 w-5 h-5" />,
   'CSS3': <SiCss3 className="text-blue-600 w-5 h-5" />,
   'JavaScript': <SiJavascript className="text-yellow-400 w-5 h-5" />,
@@ -17,7 +23,7 @@ const frontendIcons: Record<string, JSX.Element> = {
   'TypeScript': <SiTypescript className="text-blue-500 w-5 h-5" />,
   'Tailwind CSS': <SiTailwindcss className="text-teal-400 w-5 h-5" />,
 };
-const backendIcons: Record<string, JSX.Element> = {
+const backendIcons: Record<string, ReactNode> = {
   'Node.js': <SiNodedotjs className="text-green-600 w-5 h-5" />,
   'Express.js': <SiNodedotjs className="text-gray-800 dark:text-white w-5 h-5" />,
   'Python': <SiPython className="text-yellow-500 w-5 h-5" />,
@@ -26,7 +32,7 @@ const backendIcons: Record<string, JSX.Element> = {
   'RESTful APIs': <SiNodedotjs className="text-green-600 w-5 h-5" />,
   'GraphQL': <SiGraphql className="text-pink-500 w-5 h-5" />,
 };
-const toolsIcons: Record<string, JSX.Element> = {
+const toolsIcons: Record<string, ReactNode> = {
   'Git': <SiGit className="text-orange-600 w-5 h-5" />,
   'GitHub': <SiGithub className="text-black dark:text-white w-5 h-5" />,
   'VS Code': <SiVscodium className="text-blue-600 w-5 h-5" />,
@@ -36,7 +42,7 @@ const toolsIcons: Record<string, JSX.Element> = {
   'Figma': <SiFigma className="text-pink-500 w-5 h-5" />,
   'Java': <div className="w-5 h-5 rounded-full bg-gradient-to-br from-red-600 to-orange-400 flex items-center justify-center"><span className="text-white text-xs font-bold">J</span></div>,
 };
-const databaseIcons: Record<string, JSX.Element> = {
+const databaseIcons: Record<string, ReactNode> = {
   'MongoDB': <SiMongodb className="text-green-500 w-5 h-5" />,
   'MySQL': <SiMysql className="text-blue-700 w-5 h-5" />,
   'PostgreSQL': <SiPostgresql className="text-blue-500 w-5 h-5" />,
@@ -46,115 +52,239 @@ const databaseIcons: Record<string, JSX.Element> = {
 };
 
 
+// Starburst animation variants for skill items
+const starburstItem: Variants = {
+  hidden: { opacity: 0, scale: 0.4, rotate: -12, filter: 'blur(6px)' },
+  show: (i: number) => ({
+    opacity: 1,
+    scale: 1,
+    rotate: 0,
+    filter: 'blur(0px)',
+    transition: { type: 'spring' as const, stiffness: 300, damping: 22, delay: i * 0.06 },
+  }),
+};
+
 export default function Home() {
+  const prefersReducedMotion = useReducedMotion();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     message: ''
   })
+  
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [errors, setErrors] = useState<{[key: string]: string}>({})
+  const [certPreviewSrc, setCertPreviewSrc] = useState<string | null>(null)
+  const [certPreviewHref, setCertPreviewHref] = useState<string | null>(null)
+
+  // Role typewriter effect
+  const roles = ['Aspiring Full Stack Developer', 'Software Engineer', 'Data Science Engineer', 'Frontend Developer', 'Backend Developer', 'MERN Stack Developer']
+  const [typedText, setTypedText] = useState('')
+  const [roleIdx, setRoleIdx] = useState(0)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setTypedText(roles[0])
+      return
+    }
+
+    const current = roles[roleIdx % roles.length]
+    const isComplete = typedText === current
+    const isEmpty = typedText.length === 0
+
+    let delay = 80
+    if (isDeleting) delay = 35
+    if (!isDeleting && isComplete) delay = 1200
+    if (isDeleting && isEmpty) delay = 400
+
+    const timer = setTimeout(() => {
+      if (!isDeleting) {
+        if (!isComplete) {
+          setTypedText(current.slice(0, typedText.length + 1))
+        } else {
+          setIsDeleting(true)
+        }
+      } else {
+        if (!isEmpty) {
+          setTypedText(current.slice(0, typedText.length - 1))
+        } else {
+          setIsDeleting(false)
+          setRoleIdx((i) => (i + 1) % roles.length)
+        }
+      }
+    }, delay)
+
+    return () => clearTimeout(timer)
+  }, [typedText, isDeleting, roleIdx, prefersReducedMotion, roles])
+
+  const validateForm = () => {
+    const newErrors: {[key: string]: string} = {}
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required'
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = 'Name must be at least 2 characters'
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+    
+    if (!formData.message.trim()) {
+      newErrors.message = 'Message is required'
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = 'Message must be at least 10 characters'
+    }
+    
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     })
+    
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: ''
+      })
+    }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
-    alert('Thank you for your message! I\'ll get back to you soon.')
-    setFormData({ name: '', email: '', message: '' })
+    
+    if (!validateForm()) {
+      return
+    }
+    
+    setIsSubmitting(true)
+    setSubmitStatus('idle')
+    
+    try {
+      await sendContactEmail({
+        name: formData.name,
+        email: formData.email,
+        message: formData.message,
+      })
+      
+      setSubmitStatus('success')
+      setFormData({ name: '', email: '', message: '' })
+      
+    } catch (error) {
+      console.error('Contact Error:', error)
+      setSubmitStatus('error')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
+
+  // Resolve a safe profile image src for Next/Image
+  const envProfile = process.env.NEXT_PUBLIC_PROFILE_IMG
+  const isHttp = (s: string) => /^https?:\/\//i.test(s)
+  const profileSrc: string = envProfile && (isHttp(envProfile) || envProfile.startsWith('/'))
+    ? envProfile
+    : '/profile.jpg'
+  const isExternal = isHttp(profileSrc)
 
   return (
-    <main className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-[#0a1026] dark:to-cosmic-purple">
+    <main className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:!bg-none dark:!bg-transparent dark:!from-transparent dark:!to-transparent">
       {/* Home Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center pt-20">
-        <div className="container mx-auto px-4 py-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center"
-          >
+      <section id="home" className="pt-24">
+        <div className="w-full">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-10 items-center md:h-[calc(100svh-6rem)]">
+              {/* Left: Photo */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="min-h-[calc(100svh-6rem)] md:min-h-0 h-full flex items-center justify-center"
+              >
+                <div className="relative aspect-square w-[62vw] sm:w-[55vw] md:w-[min(36vw,55vh)] lg:w-[min(34vw,65vh)] xl:w-[min(32vw,72vh)] 2xl:w-[min(30vw,78vh)] rounded-full overflow-hidden ring-4 ring-purple-500/40 shadow-2xl bg-gradient-to-br from-cosmic-blue/40 to-cosmic-purple/50">
+                  <Image
+                    src={profileSrc}
+                    alt="Harshit Kumar"
+                    fill
+                    sizes="(max-width: 640px) 62vw, (max-width: 768px) 55vw, (max-width: 1024px) 36vw, (max-width: 1280px) 34vw, (max-width: 1536px) 32vw, 30vw"
+                    className="object-cover"
+                    unoptimized={isExternal}
+                    priority
+                  />
+                </div>
+              </motion.div>
+
+              {/* Right: Content */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: 0.25 }}
+                className="min-h-[calc(100svh-6rem)] md:min-h-0 h-full flex flex-col justify-center text-left"
+              >
+                <p className="text-sm md:text-base text-gray-600 dark:text-cosmic-silver mb-2">Hello there! I&apos;m</p>
+                <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+                  Harshit <span className="text-cosmic-purple">Kumar</span>
+                </h1>
+                <p className="text-xl md:text-2xl text-cosmic-blue dark:text-cosmic-cyan font-semibold mt-3">
+                  <span>{typedText}</span>
+                  {!prefersReducedMotion && (
+                    <span className="ml-0.5 inline-block align-baseline border-r-2 border-cosmic-blue dark:border-cosmic-cyan animate-pulse" style={{ height: '1.2em' }} />
+                  )}
+                </p>
+                <p className="mt-5 text-lg md:text-xl text-gray-600 dark:text-cosmic-silver max-w-2xl">
+                  Final-year B.Tech student passionate about creating innovative web solutions and building the future of technology
+                </p>
+
+                <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                  <motion.a
+                    href="#projects"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-block"
+                  >
+                    View Projects
+                  </motion.a>
+                  <motion.a
+                    href="#contact"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors inline-block"
+                  >
+                    Contact Me
+                  </motion.a>
+                  <motion.a
+                    href={process.env.NEXT_PUBLIC_RESUME_URL || '/resume.pdf'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Preview Resume
+                  </motion.a>
+                </div>
+              </motion.div>
+            </div>
+
             <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-6"
-            >
-              <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-r from-cosmic-blue to-cosmic-purple flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                JD
-              </div>
-              <h1 className="text-5xl md:text-7xl font-bold text-gray-800 dark:text-white dark:drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]">
-                John Doe
-              </h1>
-              <p className="text-2xl md:text-3xl text-cosmic-blue dark:text-cosmic-cyan font-semibold mt-4">
-                Aspiring Full Stack Developer
-              </p>
-            </motion.div>
-            
-            <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="text-xl md:text-2xl text-gray-600 dark:text-cosmic-silver mb-8 max-w-3xl mx-auto"
+              transition={{ duration: 1, delay: 0.8 }}
+              className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
             >
-              Final-year B.Tech student passionate about creating innovative web solutions and building the future of technology
-            </motion.p>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
-              <motion.a
-                href="#projects"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors inline-block"
-              >
-                View Projects
-              </motion.a>
-              
-              <motion.a
-                href="#contact"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-600 hover:text-white transition-colors inline-block"
-              >
-                Contact Me
-              </motion.a>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  // Create a dummy resume download
-                  const link = document.createElement('a')
-                  link.href = '/resume.pdf' // You'll need to add this file to public folder
-                  link.download = 'John_Doe_Resume.pdf'
-                  link.click()
-                }}
-                className="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Download Resume
-              </motion.button>
-            </motion.div>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
-          >
             {[
               { title: 'Modern Tech Stack', description: 'Built with Next.js, TypeScript, and Tailwind CSS', icon: '⚡' },
               { title: 'Responsive Design', description: 'Optimized for all devices and screen sizes', icon: '📱' },
@@ -166,7 +296,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
                 whileHover={{ y: -5 }}
-                className="glass-card p-6 rounded-2xl shadow-xl text-center border border-white/20 dark:border-slate-200/10 backdrop-blur-xl bg-white/30 dark:bg-[#1a1a2e]/40 ring-1 ring-blue-400/10 hover:ring-2 hover:ring-fuchsia-400/30 transition-all duration-300"
+                className="glass-card p-6 rounded-2xl shadow-xl text-center border border-white/20 dark:border-slate-200/10 backdrop-blur-md bg-white/30 dark:!bg-transparent ring-1 ring-blue-400/10 hover:ring-2 hover:ring-fuchsia-400/30 transition-all duration-300"
               >
                 <div className="text-4xl mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
@@ -179,64 +309,89 @@ export default function Home() {
             ))}
           </motion.div>
         </div>
+      </div>
       </section>
 
       {/* About Section */}
-      <section id="about" className="min-h-screen flex items-center justify-center glass-card">
+      <section id="about" className="min-h-screen flex items-center justify-center glass-section">
         <div className="container mx-auto px-4 py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
+            viewport={{ once: true, amount: 0.2 }}
             className="max-w-6xl mx-auto"
           >
             <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center">
               About Me
             </h2>
-            
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+
+            <div className="grid md:grid-cols-2 gap-12">
+              {/* Left: About & Goals */}
               <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-              >
-                <div className="w-80 h-80 mx-auto glass-card rounded-2xl flex items-center justify-center text-white text-6xl font-bold shadow-2xl border border-white/20 dark:border-slate-200/10 backdrop-blur-xl bg-gradient-to-br from-blue-500/60 via-fuchsia-500/40 to-purple-700/60">
-                  JD
-                </div>
-              </motion.div>
-              
-              <motion.div
-                initial={{ opacity: 0, x: 50 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
+                viewport={{ once: true, amount: 0.2 }}
                 className="space-y-6"
               >
                 <div>
-                  <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Education</h3>
-                  <p className="text-lg text-gray-600 dark:text-gray-300">
-                    <strong>B.Tech in Computer Science Engineering</strong><br/>
-                    XYZ University | 2021-2025<br/>
-                    CGPA: 8.5/10
-                  </p>
-                </div>
-                
-                <div>
                   <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">About</h3>
                   <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                    I&apos;m a final-year B.Tech student passionate about full-stack development. 
-                    I love solving complex problems through code and creating user-centric applications. 
-                    My journey in tech started with curiosity and has evolved into a deep passion for 
+                    I&apos;m a final-year B.Tech student passionate about full-stack development.
+                    I love solving complex problems through code and creating user-centric applications.
+                    My journey in tech started with curiosity and has evolved into a deep passion for
                     building innovative solutions.
                   </p>
                 </div>
-                
+
                 <div>
                   <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Goals</h3>
                   <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
-                    To become a skilled full-stack developer, contribute to meaningful projects, 
-                    and continuously learn emerging technologies. I aim to work with innovative 
+                    To become a skilled full-stack developer, contribute to meaningful projects,
+                    and continuously learn emerging technologies. I aim to work with innovative
                     companies that value creativity and technical excellence.
                   </p>
+                </div>
+              </motion.div>
+
+              {/* Right: Education Ladder */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                viewport={{ once: true, amount: 0.2 }}
+                className="space-y-6"
+              >
+                <h3 className="text-2xl font-semibold text-gray-800 dark:text-white">Education</h3>
+                <div className="relative">
+                  <div aria-hidden className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500/60 to-purple-600/60" />
+                  <ul className="space-y-8">
+                    {/* 10th Grade */}
+                    <li className="relative pl-12">
+                      <span className="absolute left-0 top-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center ring-4 ring-blue-500/20 text-sm font-bold">10</span>
+                      <div className="glass-card rounded-xl p-4 dark:!bg-transparent border border-white/20 dark:border-slate-200/10">
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white">10th Grade</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">Your School Name • Year</p>
+                      </div>
+                    </li>
+                    {/* 12th Grade */}
+                    <li className="relative pl-12">
+                      <span className="absolute left-0 top-0 w-8 h-8 rounded-full bg-fuchsia-600 text-white flex items-center justify-center ring-4 ring-fuchsia-500/20 text-sm font-bold">12</span>
+                      <div className="glass-card rounded-xl p-4 dark:!bg-transparent border border-white/20 dark:border-slate-200/10">
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white">12th Grade</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">Your School Name • Year • Stream</p>
+                      </div>
+                    </li>
+                    {/* B.Tech */}
+                    <li className="relative pl-12">
+                      <span className="absolute left-0 top-0 w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center ring-4 ring-purple-500/20 text-sm font-bold">B</span>
+                      <div className="glass-card rounded-xl p-4 dark:!bg-transparent border border-white/20 dark:border-slate-200/10">
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white">B.Tech in Computer Science Engineering</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">XYZ University • 2021–2025 • CGPA: 8.5/10</p>
+                      </div>
+                    </li>
+                  </ul>
                 </div>
               </motion.div>
             </div>
@@ -251,12 +406,14 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
+            viewport={{ once: true, amount: 0.2 }}
             className="max-w-6xl mx-auto"
           >
             <motion.h2
               initial={{ opacity: 0, scale: 0.8 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ type: 'spring', duration: 0.7 }}
+              viewport={{ once: true, amount: 0.2 }}
               className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center"
             >
               Skills & Technologies
@@ -268,6 +425,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1, type: 'spring', bounce: 0.3 }}
+                viewport={{ once: true, amount: 0.2 }}
                 className="glass-card p-6 rounded-xl shadow-lg"
                 whileHover={{ scale: 1.04, boxShadow: '0 4px 32px 0 rgba(131,56,236,0.18)' }}
               >
@@ -275,11 +433,21 @@ export default function Home() {
                   Frontend
                 </h3>
                 <div className="space-y-3">
-                  {['HTML5', 'CSS3', 'JavaScript', 'React.js', 'Next.js', 'TypeScript', 'Tailwind CSS'].map((skill) => (
-  <div key={skill} className="flex items-center space-x-2">
+                  {['HTML5', 'CSS3', 'JavaScript', 'React.js', 'Next.js', 'TypeScript', 'Tailwind CSS'].map((skill, idx) => (
+  <motion.div
+    key={skill}
+    custom={idx}
+    variants={starburstItem}
+    initial="hidden"
+    whileInView="show"
+    animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0, filter: 'blur(0px)' } : undefined}
+    viewport={{ once: true, amount: 0.2 }}
+    whileHover={{ scale: 1.03 }}
+    className="flex items-center space-x-2"
+  >
     {frontendIcons[skill] || <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
     <span className="text-gray-700 dark:text-gray-300">{skill}</span>
-  </div>
+  </motion.div>
 ))}
                 </div>
               </motion.div>
@@ -289,6 +457,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2, type: 'spring', bounce: 0.3 }}
+                viewport={{ once: true, amount: 0.2 }}
                 className="glass-card p-6 rounded-xl shadow-lg"
                 whileHover={{ scale: 1.04, boxShadow: '0 4px 32px 0 rgba(131,56,236,0.18)' }}
               >
@@ -296,11 +465,21 @@ export default function Home() {
                   Backend
                 </h3>
                 <div className="space-y-3">
-                  {['Node.js', 'Express.js', 'Python', 'Java', 'PHP', 'RESTful APIs', 'GraphQL'].map((skill) => (
-  <div key={skill} className="flex items-center space-x-2">
+                  {['Node.js', 'Express.js', 'Python', 'Java', 'PHP', 'RESTful APIs', 'GraphQL'].map((skill, idx) => (
+  <motion.div
+    key={skill}
+    custom={idx}
+    variants={starburstItem}
+    initial="hidden"
+    whileInView="show"
+    animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0, filter: 'blur(0px)' } : undefined}
+    viewport={{ once: true, amount: 0.2 }}
+    whileHover={{ scale: 1.03 }}
+    className="flex items-center space-x-2"
+  >
     {backendIcons[skill] || <div className="w-2 h-2 bg-green-500 rounded-full"></div>}
     <span className="text-gray-700 dark:text-gray-300">{skill}</span>
-  </div>
+  </motion.div>
 ))}
                 </div>
               </motion.div>
@@ -310,6 +489,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true, amount: 0.2 }}
                 className="glass-card p-6 rounded-xl shadow-lg"
                 whileHover={{ scale: 1.04, boxShadow: '0 4px 32px 0 rgba(131,56,236,0.18)' }}
               >
@@ -317,11 +497,21 @@ export default function Home() {
                   Database
                 </h3>
                 <div className="space-y-3">
-                  {['MongoDB', 'MySQL', 'PostgreSQL', 'Firebase', 'Redis', 'SQLite'].map((skill) => (
-  <div key={skill} className="flex items-center space-x-2">
+                  {['MongoDB', 'MySQL', 'PostgreSQL', 'Firebase', 'Redis', 'SQLite'].map((skill, idx) => (
+  <motion.div
+    key={skill}
+    custom={idx}
+    variants={starburstItem}
+    initial="hidden"
+    whileInView="show"
+    animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0, filter: 'blur(0px)' } : undefined}
+    viewport={{ once: true, amount: 0.2 }}
+    whileHover={{ scale: 1.03 }}
+    className="flex items-center space-x-2"
+  >
     {databaseIcons[skill] || <div className="w-2 h-2 bg-purple-500 rounded-full"></div>}
     <span className="text-gray-700 dark:text-gray-300">{skill}</span>
-  </div>
+  </motion.div>
 ))}
                 </div>
               </motion.div>
@@ -331,6 +521,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
+                viewport={{ once: true, amount: 0.2 }}
                 className="glass-card p-6 rounded-xl shadow-lg"
                 whileHover={{ scale: 1.04, boxShadow: '0 4px 32px 0 rgba(131,56,236,0.18)' }}
               >
@@ -338,11 +529,21 @@ export default function Home() {
                   Tools & Others
                 </h3>
                 <div className="space-y-3">
-                  {['Git', 'GitHub', 'VS Code', 'Docker', 'AWS', 'Vercel', 'Figma', 'Java'].map((skill) => (
-  <div key={skill} className="flex items-center space-x-2">
+                  {['Git', 'GitHub', 'VS Code', 'Docker', 'AWS', 'Vercel', 'Figma', 'Java'].map((skill, idx) => (
+  <motion.div
+    key={skill}
+    custom={idx}
+    variants={starburstItem}
+    initial="hidden"
+    whileInView="show"
+    animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0, filter: 'blur(0px)' } : undefined}
+    viewport={{ once: true, amount: 0.2 }}
+    whileHover={{ scale: 1.03 }}
+    className="flex items-center space-x-2"
+  >
     {toolsIcons[skill] || <div className="w-2 h-2 bg-gray-500 rounded-full"></div>}
     <span className="text-gray-700 dark:text-gray-300">{skill}</span>
-  </div>
+  </motion.div>
 ))}
                 </div>
               </motion.div>
@@ -352,136 +553,130 @@ export default function Home() {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="min-h-screen flex items-center justify-center glass-card">
+      <section id="projects" className="min-h-screen flex items-center justify-center glass-section">
         <div className="container mx-auto px-4 py-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-6xl mx-auto"
-          >
-            <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center">
-              Featured Projects
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Project 1 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="bg-gray-50 dark:bg-gray-700 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
-              >
-                <div className="h-48 bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
-                  <div className="text-white text-6xl">🛒</div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
-                    E-Commerce Platform
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    A full-stack e-commerce solution with user authentication, product management, 
-                    shopping cart, and payment integration. Built with modern web technologies.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {['React', 'Node.js', 'MongoDB', 'Stripe', 'Tailwind'].map((tech) => (
-                      <span key={tech} className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex space-x-4">
-                    <a 
-                      href="https://github.com/johndoe/ecommerce-platform" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                      </svg>
-                      <span>GitHub</span>
-                    </a>
-                    <a 
-                      href="https://ecommerce-demo.vercel.app" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-green-600 dark:text-green-400 hover:underline"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                      <span>Live Demo</span>
-                    </a>
-                  </div>
-                </div>
-              </motion.div>
+          <ParallaxScene intensity={6}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true, amount: 0.2 }}
+              className="max-w-6xl mx-auto"
+            >
+              <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center">
+                Featured Projects
+              </h2>
               
-              {/* Project 2 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="bg-gray-50 dark:bg-gray-700 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
-              >
-                <div className="h-48 bg-gradient-to-br from-green-400 to-blue-600 flex items-center justify-center">
-                  <div className="text-white text-6xl">📱</div>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
-                    Task Management App
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    A collaborative task management application with real-time updates, 
-                    team collaboration features, and intuitive drag-and-drop interface.
-                  </p>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {['Next.js', 'TypeScript', 'Firebase', 'Framer Motion', 'Zustand'].map((tech) => (
-                      <span key={tech} className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex space-x-4">
-                    <a 
-                      href="https://github.com/johndoe/task-manager" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                      </svg>
-                      <span>GitHub</span>
-                    </a>
-                    <a 
-                      href="https://taskmanager-demo.vercel.app" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center space-x-2 text-green-600 dark:text-green-400 hover:underline"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
-                      <span>Live Demo</span>
-                    </a>
-                  </div>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
+              <div className="grid md:grid-cols-2 gap-8">
+                {projects.map((p, idx) => (
+                  <motion.div
+                    key={p.id}
+                    initial={{ opacity: 0, y: 20, filter: 'blur(8px)', scale: 0.98 }}
+                    whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 }}
+                    animate={prefersReducedMotion ? { opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 } : undefined}
+                    transition={{ duration: 0.7, delay: 0.1 + idx * 0.1 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    className="relative group bg-gray-50 dark:!bg-transparent backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Open ${p.title} details`}
+                    onClick={() => {
+                      const url = p.liveUrl || p.githubUrl;
+                      if (url) window.open(url, '_blank', 'noopener,noreferrer');
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const url = p.liveUrl || p.githubUrl;
+                        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+                      }
+                    }}
+                  >
+                    {p.imageUrl ? (
+                      <img src={p.imageUrl} alt={`${p.title} cover`} className="h-48 w-full object-cover" />
+                    ) : (
+                      <div className="h-48 bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
+                        <div className="text-white text-6xl">🚀</div>
+                      </div>
+                    )}
+                    {/* Shimmer overlay */}
+                    <div className="pointer-events-none absolute inset-0">
+                      <motion.div
+                        initial={{ x: '-150%' }}
+                        whileInView={{ x: '150%' }}
+                        animate={prefersReducedMotion ? { x: 0 } : undefined}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1.2, ease: 'easeInOut', delay: 0.4 + idx * 0.05 }}
+                        className="h-full w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-white/10"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+                        {p.title}
+                      </h3>
+                      {p.subtitle && (
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{p.subtitle}</p>
+                      )}
+                      <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                        {p.description}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {p.technologies.map((tech) => (
+                          <span key={tech} className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex space-x-4">
+                        {p.githubUrl && (
+                          <a 
+                            href={p.githubUrl}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                            </svg>
+                            <span>GitHub</span>
+                          </a>
+                        )}
+                        {p.liveUrl && (
+                          <a 
+                            href={p.liveUrl}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center space-x-2 text-green-600 dark:text-green-400 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                            <span>Live Demo</span>
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </ParallaxScene>
         </div>
       </section>
 
       {/* Certificates Section */}
       <section id="certificates" className="min-h-screen flex items-center justify-center glass-section">
         <div className="container mx-auto px-4 py-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-6xl mx-auto"
-          >
+          <ParallaxScene intensity={5}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true, amount: 0.2 }}
+              className="max-w-6xl mx-auto"
+            >
             <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center">
               Certificates & Achievements
             </h2>
@@ -492,6 +687,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
+                viewport={{ once: true, amount: 0.2 }}
                 className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
                 <div className="text-center mb-4">
@@ -513,6 +709,15 @@ export default function Home() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
                   Comprehensive certification covering HTML, CSS, JavaScript, React, Node.js, and database management.
                 </p>
+                <div className="mt-4 flex justify-center">
+                  <button
+                    onClick={() => { setCertPreviewSrc('/certificates/Data Science Master (Altair).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/112uGh3Y8kk18aQA5-CTrxEYM7lCfo7dX/view?usp=drive_link') }}
+                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    aria-label="Preview Full Stack Web Development certificate"
+                  >
+                    Preview
+                  </button>
+                </div>
               </motion.div>
               
               {/* Certificate 2 */}
@@ -520,6 +725,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true, amount: 0.2 }}
                 className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
                 <div className="text-center mb-4">
@@ -541,6 +747,15 @@ export default function Home() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
                   Advanced React concepts including hooks, context, performance optimization, and testing.
                 </p>
+                <div className="mt-4 flex justify-center">
+                  <button
+                    onClick={() => { setCertPreviewSrc('/certificates/meta-react-developer.png'); setCertPreviewHref('/certificates/meta-react-developer.png') }}
+                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    aria-label="Preview React Developer certificate"
+                  >
+                    Preview
+                  </button>
+                </div>
               </motion.div>
               
               {/* Certificate 3 */}
@@ -548,6 +763,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true, amount: 0.2 }}
                 className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
               >
                 <div className="text-center mb-4">
@@ -569,19 +785,30 @@ export default function Home() {
                 <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
                   Foundational understanding of AWS cloud services, architecture, and best practices.
                 </p>
+                <div className="mt-4 flex justify-center">
+                  <button
+                    onClick={() => { setCertPreviewSrc('/certificates/aws-cloud-practitioner.png'); setCertPreviewHref('/certificates/aws-cloud-practitioner.png') }}
+                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                    aria-label="Preview AWS Cloud Practitioner certificate"
+                  >
+                    Preview
+                  </button>
+                </div>
               </motion.div>
             </div>
           </motion.div>
+          </ParallaxScene>
         </div>
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="min-h-screen flex items-center justify-center glass-card">
+      <section id="contact" className="min-h-screen flex items-center justify-center glass-section">
         <div className="container mx-auto px-4 py-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
+            viewport={{ once: true, amount: 0.2 }}
             className="max-w-6xl mx-auto"
           >
             <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center">
@@ -594,10 +821,46 @@ export default function Home() {
                 initial={{ opacity: 0, x: -50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
+                viewport={{ once: true, amount: 0.2 }}
               >
                 <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-6">
                   Send me a message
                 </h3>
+                {/* Success/Error Messages */}
+                {submitStatus === 'success' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 p-4 bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-700 rounded-lg"
+                  >
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 text-green-600 dark:text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-green-800 dark:text-green-200 font-medium">
+                        Thank you for your message! I&apos;ll get back to you soon.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+                
+                {submitStatus === 'error' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 p-4 bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-700 rounded-lg"
+                  >
+                    <div className="flex items-center">
+                      <svg className="w-5 h-5 text-red-600 dark:text-red-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-red-800 dark:text-red-200 font-medium">
+                        Failed to send message. Please try again or contact me directly.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -609,10 +872,23 @@ export default function Home() {
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      disabled={isSubmitting}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors ${
+                        errors.name 
+                          ? 'border-red-500 dark:border-red-400' 
+                          : 'border-gray-300 dark:border-gray-600'
+                      } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                       placeholder="Your Name"
                     />
+                    {errors.name && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-1 text-sm text-red-600 dark:text-red-400"
+                      >
+                        {errors.name}
+                      </motion.p>
+                    )}
                   </div>
                   
                   <div>
@@ -625,10 +901,23 @@ export default function Home() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      disabled={isSubmitting}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors ${
+                        errors.email 
+                          ? 'border-red-500 dark:border-red-400' 
+                          : 'border-gray-300 dark:border-gray-600'
+                      } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                       placeholder="your.email@example.com"
                     />
+                    {errors.email && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-1 text-sm text-red-600 dark:text-red-400"
+                      >
+                        {errors.email}
+                      </motion.p>
+                    )}
                   </div>
                   
                   <div>
@@ -640,20 +929,48 @@ export default function Home() {
                       name="message"
                       value={formData.message}
                       onChange={handleInputChange}
-                      required
+                      disabled={isSubmitting}
                       rows={5}
-                      className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none"
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none transition-colors ${
+                        errors.message 
+                          ? 'border-red-500 dark:border-red-400' 
+                          : 'border-gray-300 dark:border-gray-600'
+                      } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                       placeholder="Your message..."
                     />
+                    {errors.message && (
+                      <motion.p
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-1 text-sm text-red-600 dark:text-red-400"
+                      >
+                        {errors.message}
+                      </motion.p>
+                    )}
                   </div>
                   
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    disabled={isSubmitting}
+                    whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
+                    whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+                    className={`w-full px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center ${
+                      isSubmitting
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    } text-white`}
                   >
-                    Send Message
+                    {isSubmitting ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Message'
+                    )}
                   </motion.button>
                 </form>
               </motion.div>
@@ -663,6 +980,7 @@ export default function Home() {
                 initial={{ opacity: 0, x: 50 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
+                viewport={{ once: true, amount: 0.2 }}
                 className="space-y-8"
               >
                 <div>
@@ -745,6 +1063,63 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+      {/* Certificate preview overlay */}
+      <AnimatePresence>
+        {certPreviewSrc && (
+          <motion.div
+            key="cert-preview"
+            className="fixed inset-0 z-[70] flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => { setCertPreviewSrc(null); setCertPreviewHref(null) }}
+            />
+            <motion.div
+              className="relative z-[71] max-w-3xl w-[min(92vw,720px)] max-h-[80vh] overflow-auto rounded-2xl border border-white/15 bg-white/80 dark:bg-[#0f1226]/80 backdrop-blur-md p-3 shadow-2xl"
+              initial={{ opacity: 0, scale: 0.96, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 8 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Certificate preview"
+            >
+              <button
+                onClick={() => { setCertPreviewSrc(null); setCertPreviewHref(null) }}
+                className="absolute top-3 right-3 inline-flex items-center justify-center rounded-lg p-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                aria-label="Close preview"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+              <div className="mb-3 flex justify-end">
+                <a
+                  href={certPreviewHref ?? certPreviewSrc ?? '#'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-white/5"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Preview in new tab
+                </a>
+              </div>
+              <img
+                src={certPreviewSrc}
+                alt="Certificate preview image"
+                className="block max-h-[70vh] w-auto mx-auto rounded-lg object-contain"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/1200x800/png?text=Certificate+Preview' }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </main>
   )
 }

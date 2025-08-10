@@ -8,7 +8,17 @@ interface Props {
 
 export default function ThemeProvider({ children }: Props) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="space"
+      enableSystem={false}
+      storageKey="mode"
+      themes={["earth", "space"]}
+      value={{
+        earth: "earth",
+        space: "dark",
+      }}
+    >
       {children}
     </NextThemesProvider>
   );

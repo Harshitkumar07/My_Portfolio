@@ -3,8 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Navigation from '../components/Navigation'
 import ThemeProvider from '../components/ThemeProvider'
-import SpaceBackground from '../components/SpaceBackground'
-import CosmicAccents from '../components/CosmicAccents'
+import BackgroundLayer from '../components/BackgroundLayer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,16 +18,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <SpaceBackground />
-        <CosmicAccents />
-        <div className="relative z-10 min-h-screen">
-          <ThemeProvider>
+        <ThemeProvider>
+          <BackgroundLayer />
+          <div className="relative z-10 min-h-screen">
             <Navigation />
             {children}
-          </ThemeProvider>
-        </div>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   )
