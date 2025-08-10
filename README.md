@@ -9,13 +9,13 @@ A modern, animated portfolio website built with Next.js, TypeScript, Tailwind CS
 ---
 
 ## ✨ Features
-- Modern, responsive design
-- Animated section entrances & hover effects
-- Space/cosmic glassmorphism theme
-- Dark mode toggle
-- Technology logos for skills
-- Professional navigation
-- Easy to customize
+- Modern, responsive design with mobile‑first hero and two‑column desktop layout
+- Global starfield background in dark ("space") theme, optimized for performance (reduced density on mobile, throttled updates)
+- Space/cosmic glassmorphism theme with transparent sections to reveal starfield
+- Accessible theme toggle (earth ↔ space) with hydration‑safe rendering
+- Smooth, once‑per‑view animations via Framer Motion viewport controls
+- Lighter blur effects for better performance (backdrop‑blur‑md)
+- Responsive, keyboard‑friendly navigation
 
 ---
 
@@ -31,24 +31,28 @@ A modern, animated portfolio website built with Next.js, TypeScript, Tailwind CS
 ## 📁 Folder Structure
 
 ```
-Myport/
+My_Portfolio/
 ├── src/
 │   ├── app/
-│   │   ├── globals.css         # Global Tailwind styles
-│   │   ├── layout.tsx          # App root layout
-│   │   └── page.tsx            # Main page (Home)
+│   │   ├── globals.css           # Global Tailwind styles
+│   │   ├── layout.tsx            # App root layout (ThemeProvider + BackgroundLayer)
+│   │   └── page.tsx              # Main page (Home)
 │   ├── components/
-│   │   ├── Button.tsx
-│   │   ├── CosmicAccents.tsx
-│   │   ├── Navigation.tsx
-│   │   ├── SpaceBackground.tsx
-│   │   └── ThemeProvider.tsx
-│   └── data/
-│       └── projects.ts
-├── public/                     # Static files (favicons, images, pdf, etc.)
-├── .github/                    # GitHub templates
-├── .eslintrc.json              # ESLint config
-├── .gitattributes
+│   │   ├── BackgroundLayer.tsx   # Global background wrapper
+│   │   ├── Starfield.tsx         # Perf‑aware starfield canvas (dark mode)
+│   │   ├── SpaceObjects.tsx      # Decorative space objects (skipped in perf mode)
+│   │   ├── CosmicAccents.tsx     # Extra cosmic accents
+│   │   ├── EarthAccents.tsx      # Light theme accents
+│   │   ├── ParallaxScene.tsx     # Parallax utilities
+│   │   ├── Navigation.tsx        # Top navigation with theme toggle
+│   │   └── ThemeProvider.tsx     # next-themes wrapper (earth/space)
+│   ├── data/
+│   │   └── projects.ts           # Portfolio projects data (update real content)
+│   └── lib/
+│       └── email.ts              # Placeholder email utility (no backend yet)
+├── public/
+│   └── certificates/             # Certificate images
+├── .eslintrc.json
 ├── .gitignore
 ├── LICENSE
 ├── README.md
@@ -58,7 +62,7 @@ Myport/
 ├── package-lock.json
 ├── postcss.config.js
 ├── tailwind.config.js
-├── tsconfig.json
+└── tsconfig.json
 ```
 
 ---
@@ -82,6 +86,16 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
+## 🗺️ Roadmap / TODO
+- Replace placeholder content:
+  - Update `src/data/projects.ts` with real projects, images, and links
+  - Add/curate `public/certificates/` and project images
+  - Restore a public resume file if desired (avoid committing sensitive info)
+- Implement contact form backend (email service) and move secrets to `.env`
+- Add `.env.example` with safe placeholders
+- Switch remaining `<img>` to Next `<Image />` where applicable
+- Add CI (GitHub Actions) to run `npm ci && npm run build`
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
@@ -91,78 +105,3 @@ This project is licensed under the [MIT License](LICENSE).
 > **Maintained by Harsh**
 > 
 > _Built with ❤️ using Next.js, TypeScript, and Tailwind CSS_
-│   │   ├── globals.css         # Global Tailwind styles
-│   │   ├── layout.tsx          # App root layout
-│   │   └── page.tsx            # Main page (Home)
-│   ├── components/
-│   │   ├── Button.tsx
-│   │   ├── CosmicAccents.tsx
-│   │   ├── Navigation.tsx
-│   │   ├── SpaceBackground.tsx
-│   │   └── ThemeProvider.tsx
-│   └── data/
-│       └── projects.ts
-├── public/                     # Static files (favicons, images, etc.)
-├── tailwind.config.js
-├── tsconfig.json
-├── next.config.js
-├── package.json
-├── .eslintrc.json
-├── .gitattributes
-├── .gitignore
-```
-
-## Usage
-
-1. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-2. **Run the development server:**
-   ```bash
-   npm run dev
-   ```
-3. **Build for production:**
-   ```bash
-   npm run build
-   ```
-
-## Getting Started
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-2. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-3. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-
-## Features
-
-- ✅ Modern React with Next.js 15
-- ✅ TypeScript for type safety
-- ✅ Tailwind CSS for styling
-- ✅ Framer Motion for animations
-- ✅ App Router (Next.js 13+ app directory)
-- ✅ Dark mode support
-- ✅ Responsive design
-- ✅ Modular folder structure
-
-## Customization
-
-- Update `src/app/layout.tsx` to modify the site metadata
-- Add your projects to `src/data/projects.ts`
-- Customize colors and themes in `tailwind.config.js`
-- Add new components in `src/components/`
-- Add images and assets to `src/assets/`
