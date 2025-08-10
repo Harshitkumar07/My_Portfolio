@@ -84,18 +84,6 @@ My_Portfolio/
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
----
-
-## 🗺️ Roadmap / TODO
-- Replace placeholder content:
-  - Update `src/data/projects.ts` with real projects, images, and links
-  - Add/curate `public/certificates/` and project images
-  - Restore a public resume file if desired (avoid committing sensitive info)
-- Implement contact form backend (email service) and move secrets to `.env`
-- Add `.env.example` with safe placeholders
-- Switch remaining `<img>` to Next `<Image />` where applicable
-- Add CI (GitHub Actions) to run `npm ci && npm run build`
-
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
