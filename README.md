@@ -91,7 +91,3 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 This project is licensed under the [MIT License](LICENSE).
 
 ---
-
-> **Maintained by Harsh**
-> 
-> _Built with ❤️ using Next.js, TypeScript, and Tailwind CSS_
