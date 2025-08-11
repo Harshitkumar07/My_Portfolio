@@ -15,6 +15,9 @@ import ParallaxScene from '../components/ParallaxScene'
 import { projects } from '../data/projects'
 import { sendContactEmail } from '../lib/email'
 
+// Roles used in the typewriter effect (module scope to keep stable reference)
+const ROLES = ['Aspiring Full Stack Developer', 'Software Engineer', 'Data Science Engineer', 'Frontend Developer', 'Backend Developer']
+
 const frontendIcons: Record<string, ReactNode> = {
   'HTML5': <SiHtml5 className="text-orange-500 w-5 h-5" />,
   'CSS3': <SiCss3 className="text-blue-600 w-5 h-5" />,
@@ -93,18 +96,17 @@ export default function Home() {
   const [certPreviewHref, setCertPreviewHref] = useState<string | null>(null)
 
   // Role typewriter effect
-  const roles = ['Aspiring Full Stack Developer', 'Software Engineer', 'Data Science Engineer', 'Frontend Developer', 'Backend Developer']
   const [typedText, setTypedText] = useState('')
   const [roleIdx, setRoleIdx] = useState(0)
   const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (prefersReducedMotion) {
-      setTypedText(roles[0])
+      setTypedText(ROLES[0])
       return
     }
 
-    const current = roles[roleIdx % roles.length]
+    const current = ROLES[roleIdx % ROLES.length]
     const isComplete = typedText === current
     const isEmpty = typedText.length === 0
 
@@ -125,13 +127,13 @@ export default function Home() {
           setTypedText(current.slice(0, typedText.length - 1))
         } else {
           setIsDeleting(false)
-          setRoleIdx((i) => (i + 1) % roles.length)
+          setRoleIdx((i) => (i + 1) % ROLES.length)
         }
       }
     }, delay)
 
     return () => clearTimeout(timer)
-  }, [typedText, isDeleting, roleIdx, prefersReducedMotion, roles])
+  }, [typedText, isDeleting, roleIdx, prefersReducedMotion])
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {}
@@ -641,7 +643,16 @@ export default function Home() {
                     }}
                   >
                     {p.imageUrl ? (
-                      <img src={p.imageUrl} alt={`${p.title} cover`} className="h-48 w-full object-cover" />
+                      <div className="relative h-48 w-full">
+                        <Image
+                          src={p.imageUrl}
+                          alt={`${p.title} cover`}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                          unoptimized={/^https?:\/\//i.test(p.imageUrl ?? '')}
+                        />
+                      </div>
                     ) : (
                       <div className="h-48 bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center">
                         <div className="text-white text-6xl">🚀</div>
@@ -1171,12 +1182,18 @@ export default function Home() {
                   Preview in new tab
                 </a>
               </div>
-              <img
-                src={certPreviewSrc}
-                alt="Certificate preview image"
-                className="block max-h-[70vh] w-auto mx-auto rounded-lg object-contain"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/1200x800/png?text=Certificate+Preview' }}
-              />
+              
+              <div className="relative w-full h-[70vh] mx-auto rounded-lg overflow-hidden">
+                <Image
+                  src={certPreviewSrc ?? ''}
+                  alt="Certificate preview image"
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 92vw, 720px"
+                  unoptimized={/^https?:\/\//i.test(certPreviewSrc ?? '')}
+                  onError={() => { setCertPreviewSrc('https://placehold.co/1200x800/png?text=Certificate+Preview') }}
+                />
+              </div>
             </motion.div>
           </motion.div>
         )}
