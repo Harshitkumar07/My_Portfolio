@@ -49,7 +49,7 @@ My_Portfolio/
 │   ├── data/
 │   │   └── projects.ts           # Portfolio projects data (update real content)
 │   └── lib/
-│       └── email.ts              # Placeholder email utility (no backend yet)
+│       └── email.ts              # EmailJS client utility (configure env vars)
 ├── public/
 │   └── certificates/             # Certificate images
 ├── .eslintrc.json
@@ -83,6 +83,65 @@ My_Portfolio/
    ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 🔧 Environment Variables
+
+Create a `.env.local` in the project root (not committed). The app builds without these, but they enable full functionality:
+
+- `NEXT_PUBLIC_PROFILE_IMG` (optional)
+  - Public URL or a path under `public/` (e.g., `/1754872883418.png`).
+  - Fallback is the bundled `/1754872883418.png` if unset/invalid.
+
+- EmailJS (required only if enabling the contact form):
+  - `NEXT_PUBLIC_EMAILJS_PUBLIC_KEY`
+  - `NEXT_PUBLIC_EMAILJS_SERVICE_ID`
+  - `NEXT_PUBLIC_EMAILJS_TEMPLATE_ID`
+
+These are read at runtime by `src/lib/email.ts`.
+
+---
+
+## 🚀 Deployment
+
+This app is production-ready and builds cleanly.
+
+- Vercel (recommended)
+  - Push to GitHub → Import repo on Vercel.
+  - Set env vars under Project Settings → Environment Variables.
+  - Build command: `npm run build`. Vercel auto-detects Next.js (App Router).
+
+- Other platforms (Netlify, etc.)
+  - Ensure Node 18+ runtime.
+  - Build with `npm run build` and serve the Next.js output.
+  - Configure the same environment variables for the contact form.
+
+---
+
+## ✍️ Content Management
+
+- Projects: `src/data/projects.ts`
+  - Add/update objects. Use `imageUrl` for thumbnails (local in `public/` or external). If missing, a fallback emoji is shown.
+
+- Skills icons: `src/app/page.tsx`
+  - Maps in `frontendIcons`, `backendIcons`, `toolsIcons`, `databaseIcons`.
+
+- Certificates: images in `public/certificates/`
+  - Buttons in `src/app/page.tsx` set preview with `setCertPreviewSrc()` and external link via `setCertPreviewHref()`.
+
+- Contact form: client-side via EmailJS in `src/lib/email.ts`
+  - Provide the three EmailJS env vars to enable.
+
+---
+
+## ✅ Current Status
+
+- Next.js 15 + TypeScript with Tailwind and Framer Motion
+- Dark/light theme with glassmorphism and starfield
+- Typewriter roles stabilized (no exhaustive-deps warning)
+- Images optimized via `next/image` (no `<img>` lint warnings)
+- Builds successfully with zero warnings
 
 ## 📄 License
 
