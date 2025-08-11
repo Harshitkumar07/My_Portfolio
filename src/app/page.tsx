@@ -6,10 +6,11 @@ import Image from 'next/image'
 import type React from 'react'
 import type { Variants } from 'framer-motion'
 import {
-  SiHtml5, SiCss3, SiJavascript, SiReact, SiNextdotjs, SiTypescript, SiTailwindcss,
-  SiNodedotjs, SiPython, SiPhp, SiGraphql, SiMongodb, SiMysql, SiPostgresql, SiFirebase, SiRedis, SiSqlite,
-  SiGit, SiGithub, SiVscodium, SiDocker, SiAmazon, SiVercel, SiFigma
+  SiHtml5, SiCss3, SiJavascript, SiReact, SiTypescript, SiTailwindcss,
+  SiNodedotjs, SiPython, SiMongodb, SiMysql, SiFirebase, SiRedis,
+  SiGit, SiGithub, SiVercel, SiFigma, SiPostman
 } from 'react-icons/si';
+import { TbBrandVscode } from 'react-icons/tb'
 import ParallaxScene from '../components/ParallaxScene'
 import { projects } from '../data/projects'
 import { sendContactEmail } from '../lib/email'
@@ -19,36 +20,49 @@ const frontendIcons: Record<string, ReactNode> = {
   'CSS3': <SiCss3 className="text-blue-600 w-5 h-5" />,
   'JavaScript': <SiJavascript className="text-yellow-400 w-5 h-5" />,
   'React.js': <SiReact className="text-cyan-400 w-5 h-5" />,
-  'Next.js': <SiNextdotjs className="text-gray-900 dark:text-white w-5 h-5" />,
   'TypeScript': <SiTypescript className="text-blue-500 w-5 h-5" />,
   'Tailwind CSS': <SiTailwindcss className="text-teal-400 w-5 h-5" />,
 };
+
 const backendIcons: Record<string, ReactNode> = {
   'Node.js': <SiNodedotjs className="text-green-600 w-5 h-5" />,
   'Express.js': <SiNodedotjs className="text-gray-800 dark:text-white w-5 h-5" />,
   'Python': <SiPython className="text-yellow-500 w-5 h-5" />,
   'Java': <div className="w-5 h-5 rounded-full bg-gradient-to-br from-red-600 to-orange-400 flex items-center justify-center"><span className="text-white text-xs font-bold">J</span></div>,
-  'PHP': <SiPhp className="text-indigo-600 w-5 h-5" />,
-  'RESTful APIs': <SiNodedotjs className="text-green-600 w-5 h-5" />,
-  'GraphQL': <SiGraphql className="text-pink-500 w-5 h-5" />,
+  'FastAPI': <div className="w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center"><span className="text-white text-[10px] font-bold">FA</span></div>,
 };
+
 const toolsIcons: Record<string, ReactNode> = {
   'Git': <SiGit className="text-orange-600 w-5 h-5" />,
   'GitHub': <SiGithub className="text-black dark:text-white w-5 h-5" />,
-  'VS Code': <SiVscodium className="text-blue-600 w-5 h-5" />,
-  'Docker': <SiDocker className="text-blue-400 w-5 h-5" />,
-  'AWS': <SiAmazon className="text-yellow-600 w-5 h-5" />,
+  'VS Code': <TbBrandVscode className="text-blue-600 w-5 h-5" />,
   'Vercel': <SiVercel className="text-black dark:text-white w-5 h-5" />,
   'Figma': <SiFigma className="text-pink-500 w-5 h-5" />,
+  'Postman': (SiPostman
+    ? <SiPostman className="text-orange-500 w-5 h-5" />
+    : <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center"><span className="text-white text-[9px] font-bold">PM</span></div>
+  ),
+  'C': <div className="w-5 h-5 rounded-full bg-sky-600 flex items-center justify-center"><span className="text-white text-[10px] font-bold">C</span></div>,
+  'C++': <div className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center"><span className="text-white text-[10px] font-bold">C++</span></div>,
   'Java': <div className="w-5 h-5 rounded-full bg-gradient-to-br from-red-600 to-orange-400 flex items-center justify-center"><span className="text-white text-xs font-bold">J</span></div>,
 };
+
 const databaseIcons: Record<string, ReactNode> = {
   'MongoDB': <SiMongodb className="text-green-500 w-5 h-5" />,
   'MySQL': <SiMysql className="text-blue-700 w-5 h-5" />,
-  'PostgreSQL': <SiPostgresql className="text-blue-500 w-5 h-5" />,
   'Firebase': <SiFirebase className="text-yellow-400 w-5 h-5" />,
   'Redis': <SiRedis className="text-red-500 w-5 h-5" />,
-  'SQLite': <SiSqlite className="text-blue-400 w-5 h-5" />,
+};
+
+// Contact info constants (update these with your real details)
+const contact = {
+  email: 'csds22137@glbitm.ac.in',
+  phone: '+91 9811745393',
+  linkedin: 'https://www.linkedin.com/in/harshit-kumar-573579203/',
+  github: 'https://github.com/Harshitkumar07',
+  leetcode: 'https://leetcode.com/u/Harshitkumar07/',
+  geeksforgeeks: 'https://www.geeksforgeeks.org/user/notharshit/',
+  portfolio: '/',
 };
 
 
@@ -79,7 +93,7 @@ export default function Home() {
   const [certPreviewHref, setCertPreviewHref] = useState<string | null>(null)
 
   // Role typewriter effect
-  const roles = ['Aspiring Full Stack Developer', 'Software Engineer', 'Data Science Engineer', 'Frontend Developer', 'Backend Developer', 'MERN Stack Developer']
+  const roles = ['Aspiring Full Stack Developer', 'Software Engineer', 'Data Science Engineer', 'Frontend Developer', 'Backend Developer']
   const [typedText, setTypedText] = useState('')
   const [roleIdx, setRoleIdx] = useState(0)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -191,9 +205,27 @@ export default function Home() {
   // Resolve a safe profile image src for Next/Image
   const envProfile = process.env.NEXT_PUBLIC_PROFILE_IMG
   const isHttp = (s: string) => /^https?:\/\//i.test(s)
-  const profileSrc: string = envProfile && (isHttp(envProfile) || envProfile.startsWith('/'))
-    ? envProfile
-    : '/profile.jpg'
+  const toPublicPath = (s?: string): string => {
+    if (!s) return ''
+    let v = s.trim()
+    // normalize Windows backslashes
+    v = v.replace(/\\\\/g, '/').replace(/\\/g, '/')
+    if (isHttp(v)) return v
+    // disallow absolute file/system paths like C:/... or file:...
+    if (/^[a-zA-Z]:\//.test(v) || /^file:/i.test(v)) return ''
+    // handle protocol-relative URLs
+    if (v.startsWith('//')) return 'https:' + v
+    if (v.startsWith('/')) return v
+    if (v.startsWith('public/')) return '/' + v.replace(/^public\//, '')
+    // allow simple filenames (no slashes) from public/
+    if (/^[\w\-.]+$/.test(v)) return '/' + v
+    return ''
+  }
+  const normalizedEnv = toPublicPath(envProfile)
+  if (envProfile && !normalizedEnv) {
+    console.warn('Invalid NEXT_PUBLIC_PROFILE_IMG value; falling back to default image:', envProfile)
+  }
+  const profileSrc: string = normalizedEnv || '/1754872883418.png'
   const isExternal = isHttp(profileSrc)
 
   return (
@@ -353,6 +385,22 @@ export default function Home() {
                     companies that value creativity and technical excellence.
                   </p>
                 </div>
+                <div>
+                  <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Relevant Coursework</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {['Data Structures & Algorithms', 'DBMS', 'OOP', 'Operating Systems', 'Computer Networks', 'Machine Learning', 'Data Mining', 'Probability & Statistics'].map((cw) => (
+                      <span key={cw} className="px-3 py-1 rounded-full text-sm bg-blue-50 text-blue-700 dark:bg-white/5 dark:text-blue-300 border border-blue-200/50 dark:border-white/10">{cw}</span>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Soft Skills</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {['Problem Solving', 'Communication', 'Teamwork', 'Ownership', 'Adaptability', 'Time Management'].map((sk) => (
+                      <span key={sk} className="px-3 py-1 rounded-full text-sm bg-purple-50 text-purple-700 dark:bg-white/5 dark:text-purple-300 border border-purple-200/50 dark:border-white/10">{sk}</span>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
 
               {/* Right: Education Ladder */}
@@ -367,28 +415,28 @@ export default function Home() {
                 <div className="relative">
                   <div aria-hidden className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500/60 to-purple-600/60" />
                   <ul className="space-y-8">
-                    {/* 10th Grade */}
+                    {/* Class 10 */}
                     <li className="relative pl-12">
                       <span className="absolute left-0 top-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center ring-4 ring-blue-500/20 text-sm font-bold">10</span>
                       <div className="glass-card rounded-xl p-4 dark:!bg-transparent border border-white/20 dark:border-slate-200/10">
-                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white">10th Grade</h4>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">Your School Name • Year</p>
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Class 10 – R.S.S. International School, Noida</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">Percentage: 82% • 2019</p>
                       </div>
                     </li>
-                    {/* 12th Grade */}
+                    {/* Class 12 */}
                     <li className="relative pl-12">
                       <span className="absolute left-0 top-0 w-8 h-8 rounded-full bg-fuchsia-600 text-white flex items-center justify-center ring-4 ring-fuchsia-500/20 text-sm font-bold">12</span>
                       <div className="glass-card rounded-xl p-4 dark:!bg-transparent border border-white/20 dark:border-slate-200/10">
-                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white">12th Grade</h4>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">Your School Name • Year • Stream</p>
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Class 12 (PCM) – R.S.S. International School, Noida</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">Percentage: 92% • 2021</p>
                       </div>
                     </li>
                     {/* B.Tech */}
                     <li className="relative pl-12">
                       <span className="absolute left-0 top-0 w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center ring-4 ring-purple-500/20 text-sm font-bold">B</span>
                       <div className="glass-card rounded-xl p-4 dark:!bg-transparent border border-white/20 dark:border-slate-200/10">
-                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white">B.Tech in Computer Science Engineering</h4>
-                        <p className="text-gray-600 dark:text-gray-300 text-sm">XYZ University • 2021–2025 • CGPA: 8.5/10</p>
+                        <h4 className="text-lg font-semibold text-gray-800 dark:text-white">B.Tech in Computer Science (Data Science)</h4>
+                        <p className="text-gray-600 dark:text-gray-300 text-sm">G.L. Bajaj Institute of Technology and Management, Greater Noida • 2022–Present</p>
                       </div>
                     </li>
                   </ul>
@@ -433,7 +481,7 @@ export default function Home() {
                   Frontend
                 </h3>
                 <div className="space-y-3">
-                  {['HTML5', 'CSS3', 'JavaScript', 'React.js', 'Next.js', 'TypeScript', 'Tailwind CSS'].map((skill, idx) => (
+                  {['HTML5', 'CSS3', 'JavaScript', 'React.js', 'TypeScript', 'Tailwind CSS'].map((skill, idx) => (
   <motion.div
     key={skill}
     custom={idx}
@@ -465,7 +513,7 @@ export default function Home() {
                   Backend
                 </h3>
                 <div className="space-y-3">
-                  {['Node.js', 'Express.js', 'Python', 'Java', 'PHP', 'RESTful APIs', 'GraphQL'].map((skill, idx) => (
+                  {['Node.js', 'Express.js', 'Python', 'FastAPI', 'Java'].map((skill, idx) => (
   <motion.div
     key={skill}
     custom={idx}
@@ -497,7 +545,7 @@ export default function Home() {
                   Database
                 </h3>
                 <div className="space-y-3">
-                  {['MongoDB', 'MySQL', 'PostgreSQL', 'Firebase', 'Redis', 'SQLite'].map((skill, idx) => (
+                  {['MongoDB', 'MySQL', 'Firebase', 'Redis'].map((skill, idx) => (
   <motion.div
     key={skill}
     custom={idx}
@@ -529,7 +577,7 @@ export default function Home() {
                   Tools & Others
                 </h3>
                 <div className="space-y-3">
-                  {['Git', 'GitHub', 'VS Code', 'Docker', 'AWS', 'Vercel', 'Figma', 'Java'].map((skill, idx) => (
+                  {['Git', 'GitHub', 'VS Code', 'Postman', 'Vercel', 'Figma', 'C', 'C++', 'Java'].map((skill, idx) => (
   <motion.div
     key={skill}
     custom={idx}
@@ -697,23 +745,23 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                    Full Stack Web Development
+                    Data Science Master
                   </h3>
                   <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
-                    freeCodeCamp
+                    Altair
                   </p>
                   <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    Issued: March 2024
+                    Issued: Sep–Nov 2023
                   </p>
                 </div>
                 <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
-                  Comprehensive certification covering HTML, CSS, JavaScript, React, Node.js, and database management.
+                  Hands-on program covering data analysis, visualization, and ML foundations using Python, Pandas, NumPy, and Altair.
                 </p>
                 <div className="mt-4 flex justify-center">
                   <button
                     onClick={() => { setCertPreviewSrc('/certificates/Data Science Master (Altair).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/112uGh3Y8kk18aQA5-CTrxEYM7lCfo7dX/view?usp=drive_link') }}
                     className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                    aria-label="Preview Full Stack Web Development certificate"
+                    aria-label="Preview Data Science Master certificate"
                   >
                     Preview
                   </button>
@@ -735,23 +783,23 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                    React Developer Certification
+                    Coding World Cup — AIR 519
                   </h3>
                   <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
-                    Meta (Facebook)
+                    Coding World Cup
                   </p>
                   <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    Issued: January 2024
+                    Issued: Nov 2023
                   </p>
                 </div>
                 <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
-                  Advanced React concepts including hooks, context, performance optimization, and testing.
+                  Achieved All India Rank 519 in a national-level coding competition.
                 </p>
                 <div className="mt-4 flex justify-center">
                   <button
-                    onClick={() => { setCertPreviewSrc('/certificates/meta-react-developer.png'); setCertPreviewHref('/certificates/meta-react-developer.png') }}
+                    onClick={() => { setCertPreviewSrc('/certificates/Coding World Cup (Coding Ninjas).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/1Aqzj_E1fH9AoFmymauLDcuc7K9dQ8DrV/view?usp=drive_link') }}
                     className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                    aria-label="Preview React Developer certificate"
+                    aria-label="Preview Coding World Cup certificate"
                   >
                     Preview
                   </button>
@@ -773,23 +821,23 @@ export default function Home() {
                     </svg>
                   </div>
                   <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                    AWS Cloud Practitioner
+                    Data Analytics Process Automation
                   </h3>
                   <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
-                    Amazon Web Services
+                    Certification Program
                   </p>
                   <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    Issued: December 2023
+                    Issued: Apr–Jun 2024
                   </p>
                 </div>
                 <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
-                  Foundational understanding of AWS cloud services, architecture, and best practices.
+                  Automated data preparation and analytics workflows; hands-on with ETL, dashboards, and process automation.
                 </p>
                 <div className="mt-4 flex justify-center">
                   <button
-                    onClick={() => { setCertPreviewSrc('/certificates/aws-cloud-practitioner.png'); setCertPreviewHref('/certificates/aws-cloud-practitioner.png') }}
+                    onClick={() => { setCertPreviewSrc('/certificates/Data Analytics Process Automation (Alteryx).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/1AhpM9MEAQUicuyRGkoNudet0futEbFR1/view?usp=drive_link') }}
                     className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                    aria-label="Preview AWS Cloud Practitioner certificate"
+                    aria-label="Preview Data Analytics Process Automation certificate"
                   >
                     Preview
                   </button>
@@ -907,7 +955,7 @@ export default function Home() {
                           ? 'border-red-500 dark:border-red-400' 
                           : 'border-gray-300 dark:border-gray-600'
                       } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      placeholder="your.email@example.com"
+                      placeholder={contact.email}
                     />
                     {errors.email && (
                       <motion.p
@@ -1002,7 +1050,9 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-gray-800 dark:text-white font-semibold">Email</p>
-                      <p className="text-gray-600 dark:text-gray-300">john.doe@example.com</p>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        <a href={`mailto:${contact.email}`} className="hover:underline">{contact.email}</a>
+                      </p>
                     </div>
                   </div>
                   
@@ -1014,7 +1064,7 @@ export default function Home() {
                     </div>
                     <div>
                       <p className="text-gray-800 dark:text-white font-semibold">Phone</p>
-                      <p className="text-gray-600 dark:text-gray-300">+91 98765 43210</p>
+                      <p className="text-gray-600 dark:text-gray-300">{contact.phone}</p>
                     </div>
                   </div>
                 </div>
@@ -1025,7 +1075,7 @@ export default function Home() {
                   </h4>
                   <div className="flex space-x-4">
                     <a 
-                      href="https://linkedin.com/in/johndoe" 
+                      href={contact.linkedin} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="w-12 h-12 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-colors"
@@ -1036,7 +1086,7 @@ export default function Home() {
                     </a>
                     
                     <a 
-                      href="https://github.com/johndoe" 
+                      href={contact.github} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="w-12 h-12 bg-gray-800 hover:bg-gray-900 rounded-lg flex items-center justify-center transition-colors"
@@ -1047,13 +1097,24 @@ export default function Home() {
                     </a>
                     
                     <a 
-                      href="https://twitter.com/johndoe" 
+                      href={contact.leetcode}
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="w-12 h-12 bg-blue-400 hover:bg-blue-500 rounded-lg flex items-center justify-center transition-colors"
+                      className="w-12 h-12 bg-orange-500 hover:bg-orange-600 rounded-lg flex items-center justify-center transition-colors"
+                      aria-label="LeetCode"
                     >
-                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                      <span className="text-white font-bold">LC</span>
+                    </a>
+                    <a 
+                      href={contact.portfolio}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 bg-slate-700 hover:bg-slate-800 rounded-lg flex items-center justify-center transition-colors"
+                      aria-label="Portfolio"
+                    >
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-4" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     </a>
                   </div>

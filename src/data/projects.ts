@@ -27,14 +27,21 @@ export const projects: Project[] = [
     ],
   },
   {
-    id: '3',
-    title: 'E‑Commerce Platform',
-    subtitle: 'Full-stack monorepo',
+    id: '2',
+    title: 'Sports Pulse',
+    subtitle: 'Real-time multi-sport scores',
     description:
-      'End-to-end commerce app including auth, product management, carts, and Stripe payments.',
-    technologies: ['React', 'Node.js', 'MongoDB', 'Stripe', 'Tailwind'],
-    githubUrl: 'https://github.com/Harshitkumar07/ecommerce-platform',
-    liveUrl: 'https://ecommerce-demo.vercel.app',
-    features: ['Secure checkout', 'Admin dashboard', 'Responsive UI'],
+      'Built a real-time multi-sport score tracking web app supporting cricket, football, basketball, and more. Integrated Firebase Realtime Database for instant updates with minimal latency and seamless cross-device synchronization. Designed a responsive UI with ReactJS for an engaging user experience.',
+    technologies: ['ReactJS', 'Firebase Realtime DB', 'JavaScript'],
+    features: ['Real-time updates', 'Multi-sport support', 'Responsive UI'],
+  },
+  {
+    id: '3',
+    title: 'Diet Recommendation System',
+    subtitle: 'ML-powered personalized diet plans',
+    description:
+      'Full-stack, ML-powered web application that generates personalized diet plans based on user calorie goals, macronutrient preferences, and optional ingredients. Suggests balanced meals with detailed nutritional values and step-by-step recipes. Achieved ~20% improved prediction accuracy through advanced preprocessing and model optimization.',
+    technologies: ['Python', 'scikit-learn', 'Pandas', 'NumPy', 'Streamlit', 'FastAPI'],
+    features: ['Personalized meal plans', 'Nutrition breakdown', 'Recipe generation'],
   },
 ]
