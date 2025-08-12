@@ -8,7 +8,7 @@ import type { Variants } from 'framer-motion'
 import {
   SiHtml5, SiCss3, SiJavascript, SiReact, SiTypescript, SiTailwindcss,
   SiNodedotjs, SiPython, SiMongodb, SiMysql, SiFirebase, SiRedis,
-  SiGit, SiGithub, SiVercel, SiFigma, SiPostman
+  SiGit, SiGithub, SiVercel, SiFigma, SiPostman, SiLeetcode, SiGeeksforgeeks
 } from 'react-icons/si';
 import { TbBrandVscode } from 'react-icons/tb'
 import ParallaxScene from '../components/ParallaxScene'
@@ -233,18 +233,18 @@ export default function Home() {
   return (
     <main className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:!bg-none dark:!bg-transparent dark:!from-transparent dark:!to-transparent">
       {/* Home Section */}
-      <section id="home" className="pt-24">
+      <section id="home" className="pt-16 md:pt-24">
         <div className="w-full">
           <div className="container mx-auto px-4 max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-10 items-center md:h-[calc(100svh-6rem)]">
-              {/* Left: Photo */}
+              {/* Left: Photo (second on mobile) */}
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.15 }}
-                className="min-h-[calc(100svh-6rem)] md:min-h-0 h-full flex items-center justify-center"
+                className="order-2 md:order-1 h-full md:min-h-[calc(100svh-6rem)] flex items-center justify-center"
               >
-                <div className="relative aspect-square w-[62vw] sm:w-[55vw] md:w-[min(36vw,55vh)] lg:w-[min(34vw,65vh)] xl:w-[min(32vw,72vh)] 2xl:w-[min(30vw,78vh)] rounded-full overflow-hidden ring-4 ring-purple-500/40 shadow-2xl bg-gradient-to-br from-cosmic-blue/40 to-cosmic-purple/50">
+                <div className="relative aspect-square w-[52vw] sm:w-[48vw] md:w-[min(36vw,55vh)] lg:w-[min(34vw,65vh)] xl:w-[min(32vw,72vh)] 2xl:w-[min(30vw,78vh)] rounded-full overflow-hidden ring-4 ring-purple-500/40 shadow-2xl bg-gradient-to-br from-cosmic-blue/40 to-cosmic-purple/50">
                   <Image
                     src={profileSrc}
                     alt="Harshit Kumar"
@@ -257,12 +257,12 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              {/* Right: Content */}
+              {/* Right: Content (first on mobile) */}
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 }}
-                className="min-h-[calc(100svh-6rem)] md:min-h-0 h-full flex flex-col justify-center text-left"
+                className="order-1 md:order-2 h-full md:min-h-[calc(100svh-6rem)] flex flex-col justify-center text-left"
               >
                 <p className="text-sm md:text-base text-gray-600 dark:text-cosmic-silver mb-2">Hello there! I&apos;m</p>
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
@@ -626,7 +626,7 @@ export default function Home() {
                     animate={prefersReducedMotion ? { opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 } : undefined}
                     transition={{ duration: 0.7, delay: 0.1 + idx * 0.1 }}
                     viewport={{ once: true, amount: 0.3 }}
-                    className="relative group bg-gray-50 dark:!bg-transparent backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer"
+                    className="relative group bg-gray-50 dark:!bg-transparent backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer ring-1 ring-gray-300 dark:ring-white/15 hover:ring-2 hover:ring-blue-400 dark:hover:ring-blue-500/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
                     role="button"
                     tabIndex={0}
                     aria-label={`Open ${p.title} details`}
@@ -1114,7 +1114,16 @@ export default function Home() {
                       className="w-12 h-12 bg-orange-500 hover:bg-orange-600 rounded-lg flex items-center justify-center transition-colors"
                       aria-label="LeetCode"
                     >
-                      <span className="text-white font-bold">LC</span>
+                      <SiLeetcode className="w-6 h-6 text-white" />
+                    </a>
+                    <a 
+                      href={contact.geeksforgeeks}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-12 h-12 bg-green-600 hover:bg-green-700 rounded-lg flex items-center justify-center transition-colors"
+                      aria-label="GeeksforGeeks"
+                    >
+                      <SiGeeksforgeeks className="w-6 h-6 text-white" />
                     </a>
                     <a 
                       href={contact.portfolio}
