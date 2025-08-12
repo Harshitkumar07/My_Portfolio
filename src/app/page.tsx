@@ -296,7 +296,7 @@ export default function Home() {
                     Contact Me
                   </motion.a>
                   <motion.a
-                    href={process.env.NEXT_PUBLIC_RESUME_URL || '/resume.pdf'}
+                    href={process.env.NEXT_PUBLIC_RESUME_URL || 'https://drive.google.com/file/d/1-SdAT9WQZhpzk4pF0p9cZCksW_WRwVZb/view?usp=sharing'}
                     target="_blank"
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.05 }}
