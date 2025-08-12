@@ -233,18 +233,18 @@ export default function Home() {
   return (
     <main className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:!bg-none dark:!bg-transparent dark:!from-transparent dark:!to-transparent">
       {/* Home Section */}
-      <section id="home" className="pt-16 md:pt-24">
-        <div className="w-full">
-          <div className="container mx-auto px-4 max-w-7xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:gap-10 items-center md:h-[calc(100svh-6rem)]">
+       <section id="home" className="pt-16 md:pt-24">
+         <div className="w-full">
+           <div className="container mx-auto px-4 max-w-7xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center md:h-[calc(100svh-6rem)]">
               {/* Left: Photo (second on mobile) */}
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.15 }}
-                className="order-2 md:order-1 h-full md:min-h-[calc(100svh-6rem)] flex items-center justify-center"
+                className="order-2 md:order-1 h-full md:min-h-[calc(100svh-6rem)] flex items-center justify-center mt-6 md:mt-0 relative z-0"
               >
-                <div className="relative aspect-square w-[52vw] sm:w-[48vw] md:w-[min(36vw,55vh)] lg:w-[min(34vw,65vh)] xl:w-[min(32vw,72vh)] 2xl:w-[min(30vw,78vh)] rounded-full overflow-hidden ring-4 ring-purple-500/40 shadow-2xl bg-gradient-to-br from-cosmic-blue/40 to-cosmic-purple/50">
+                <div className="relative aspect-square w-[48vw] sm:w-[48vw] md:w-[min(36vw,55vh)] lg:w-[min(34vw,65vh)] xl:w-[min(32vw,72vh)] 2xl:w-[min(30vw,78vh)] rounded-full overflow-hidden ring-4 ring-purple-500/40 shadow-2xl bg-gradient-to-br from-cosmic-blue/40 to-cosmic-purple/50">
                   <Image
                     src={profileSrc}
                     alt="Harshit Kumar"
@@ -262,7 +262,7 @@ export default function Home() {
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 }}
-                className="order-1 md:order-2 h-full md:min-h-[calc(100svh-6rem)] flex flex-col justify-center text-left"
+                className="order-1 md:order-2 h-full md:min-h-[calc(100svh-6rem)] flex flex-col justify-center text-left relative z-10"
               >
                 <p className="text-sm md:text-base text-gray-600 dark:text-cosmic-silver mb-2">Hello there! I&apos;m</p>
                 <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white">
@@ -296,7 +296,7 @@ export default function Home() {
                     Contact Me
                   </motion.a>
                   <motion.a
-                    href={process.env.NEXT_PUBLIC_RESUME_URL || 'https://drive.google.com/file/d/1-SdAT9WQZhpzk4pF0p9cZCksW_WRwVZb/view?usp=sharing'}
+                    href={process.env.NEXT_PUBLIC_RESUME_URL || '/HarshitResume.pdf'}
                     target="_blank"
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.05 }}
