@@ -8,15 +8,14 @@ import type { Variants } from 'framer-motion'
 import {
   SiHtml5, SiCss3, SiJavascript, SiReact, SiTypescript, SiTailwindcss,
   SiNodedotjs, SiPython, SiMongodb, SiMysql, SiFirebase, SiRedis,
-  SiGit, SiGithub, SiVercel, SiFigma, SiPostman, SiLeetcode, SiGeeksforgeeks
+  SiGit, SiGithub, SiVercel, SiFigma, SiPostman, SiLeetcode, SiGeeksforgeeks, SiLinkedin
 } from 'react-icons/si';
 import { TbBrandVscode } from 'react-icons/tb'
 import ParallaxScene from '../components/ParallaxScene'
 import { projects } from '../data/projects'
 import { sendContactEmail } from '../lib/email'
 
-// Roles used in the typewriter effect (module scope to keep stable reference)
-const ROLES = ['Aspiring Full Stack Developer', 'Software Engineer', 'Data Science Engineer', 'Frontend Developer', 'Backend Developer']
+const ROLES = ['Aspiring Full Stack Developer', 'Software Engineer', 'Freelancer', 'Data Science Engineer', 'Frontend Developer', 'Web Developer']
 
 const frontendIcons: Record<string, ReactNode> = {
   'HTML5': <SiHtml5 className="text-orange-500 w-5 h-5" />,
@@ -57,9 +56,8 @@ const databaseIcons: Record<string, ReactNode> = {
   'Redis': <SiRedis className="text-red-500 w-5 h-5" />,
 };
 
-// Contact info constants (update these with your real details)
 const contact = {
-  email: 'csds22137@glbitm.ac.in',
+  email: 'kumarharshit9911@gmail.com',
   phone: '+91 9811745393',
   linkedin: 'https://www.linkedin.com/in/harshit-kumar-573579203/',
   github: 'https://github.com/Harshitkumar07',
@@ -71,12 +69,11 @@ const contact = {
 
 // Starburst animation variants for skill items
 const starburstItem: Variants = {
-  hidden: { opacity: 0, scale: 0.4, rotate: -12, filter: 'blur(6px)' },
+  hidden: { opacity: 0, scale: 0.4, rotate: -12 },
   show: (i: number) => ({
     opacity: 1,
     scale: 1,
     rotate: 0,
-    filter: 'blur(0px)',
     transition: { type: 'spring' as const, stiffness: 300, damping: 22, delay: i * 0.06 },
   }),
 };
@@ -88,10 +85,10 @@ export default function Home() {
     email: '',
     message: ''
   })
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
-  const [errors, setErrors] = useState<{[key: string]: string}>({})
+  const [errors, setErrors] = useState<{ [key: string]: string }>({})
   const [certPreviewSrc, setCertPreviewSrc] = useState<string | null>(null)
   const [certPreviewHref, setCertPreviewHref] = useState<string | null>(null)
 
@@ -136,26 +133,26 @@ export default function Home() {
   }, [typedText, isDeleting, roleIdx, prefersReducedMotion])
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {}
-    
+    const newErrors: { [key: string]: string } = {}
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required'
     } else if (formData.name.trim().length < 2) {
       newErrors.name = 'Name must be at least 2 characters'
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address'
     }
-    
+
     if (!formData.message.trim()) {
       newErrors.message = 'Message is required'
     } else if (formData.message.trim().length < 10) {
       newErrors.message = 'Message must be at least 10 characters'
     }
-    
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -166,7 +163,7 @@ export default function Home() {
       ...formData,
       [name]: value
     })
-    
+
     // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors({
@@ -178,24 +175,24 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) {
       return
     }
-    
+
     setIsSubmitting(true)
     setSubmitStatus('idle')
-    
+
     try {
       await sendContactEmail({
         name: formData.name,
         email: formData.email,
         message: formData.message,
       })
-      
+
       setSubmitStatus('success')
       setFormData({ name: '', email: '', message: '' })
-      
+
     } catch (error) {
       console.error('Contact Error:', error)
       setSubmitStatus('error')
@@ -233,9 +230,9 @@ export default function Home() {
   return (
     <main className="bg-gradient-to-br from-blue-50 to-indigo-100 dark:!bg-none dark:!bg-transparent dark:!from-transparent dark:!to-transparent">
       {/* Home Section */}
-       <section id="home" className="pt-16 md:pt-24">
-         <div className="w-full">
-           <div className="container mx-auto px-4 max-w-7xl">
+      <section id="home" className="pt-16 md:pt-24">
+        <div className="w-full">
+          <div className="container mx-auto px-4 max-w-7xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center md:h-[calc(100svh-6rem)]">
               {/* Left: Photo (second on mobile) */}
               <motion.div
@@ -319,31 +316,31 @@ export default function Home() {
               transition={{ duration: 1, delay: 0.8 }}
               className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
             >
-            {[
-              { title: 'Modern Tech Stack', description: 'Built with Next.js, TypeScript, and Tailwind CSS', icon: '⚡' },
-              { title: 'Responsive Design', description: 'Optimized for all devices and screen sizes', icon: '📱' },
-              { title: 'Performance Focused', description: 'Fast loading and smooth animations', icon: '🚀' },
-            ].map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="glass-card p-6 rounded-2xl shadow-xl text-center border border-white/20 dark:border-slate-200/10 backdrop-blur-md bg-white/30 dark:!bg-transparent ring-1 ring-blue-400/10 hover:ring-2 hover:ring-fuchsia-400/30 transition-all duration-300"
-              >
-                <div className="text-4xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {feature.description}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
+              {[
+                { title: 'Modern Tech Stack', description: 'Built with Next.js, TypeScript, and Tailwind CSS', icon: '⚡' },
+                { title: 'Responsive Design', description: 'Optimized for all devices and screen sizes', icon: '📱' },
+                { title: 'Performance Focused', description: 'Fast loading and smooth animations', icon: '🚀' },
+              ].map((feature, index) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 1 + index * 0.1 }}
+                  whileHover={{ y: -5 }}
+                  className="glass-card p-6 rounded-2xl shadow-xl text-center border border-white/20 dark:border-slate-200/10 backdrop-blur-md bg-white/30 dark:!bg-transparent ring-1 ring-blue-400/10 hover:ring-2 hover:ring-fuchsia-400/30 transition-all duration-300"
+                >
+                  <div className="text-4xl mb-4">{feature.icon}</div>
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
+                    {feature.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {feature.description}
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
         </div>
-      </div>
       </section>
 
       {/* About Section */}
@@ -468,7 +465,7 @@ export default function Home() {
             >
               Skills & Technologies
             </motion.h2>
-            
+
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {/* Frontend */}
               <motion.div
@@ -484,24 +481,24 @@ export default function Home() {
                 </h3>
                 <div className="space-y-3">
                   {['HTML5', 'CSS3', 'JavaScript', 'React.js', 'TypeScript', 'Tailwind CSS'].map((skill, idx) => (
-  <motion.div
-    key={skill}
-    custom={idx}
-    variants={starburstItem}
-    initial="hidden"
-    whileInView="show"
-    animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0, filter: 'blur(0px)' } : undefined}
-    viewport={{ once: true, amount: 0.2 }}
-    whileHover={{ scale: 1.03 }}
-    className="flex items-center space-x-2"
-  >
-    {frontendIcons[skill] || <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
-    <span className="text-gray-700 dark:text-gray-300">{skill}</span>
-  </motion.div>
-))}
+                    <motion.div
+                      key={skill}
+                      custom={idx}
+                      variants={starburstItem}
+                      initial="hidden"
+                      whileInView="show"
+                      animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0 } : undefined}
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={{ scale: 1.03 }}
+                      className="flex items-center space-x-2"
+                    >
+                      {frontendIcons[skill] || <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
+                      <span className="text-gray-700 dark:text-gray-300">{skill}</span>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
-              
+
               {/* Backend */}
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
@@ -516,24 +513,24 @@ export default function Home() {
                 </h3>
                 <div className="space-y-3">
                   {['Node.js', 'Express.js', 'Python', 'FastAPI', 'Java'].map((skill, idx) => (
-  <motion.div
-    key={skill}
-    custom={idx}
-    variants={starburstItem}
-    initial="hidden"
-    whileInView="show"
-    animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0, filter: 'blur(0px)' } : undefined}
-    viewport={{ once: true, amount: 0.2 }}
-    whileHover={{ scale: 1.03 }}
-    className="flex items-center space-x-2"
-  >
-    {backendIcons[skill] || <div className="w-2 h-2 bg-green-500 rounded-full"></div>}
-    <span className="text-gray-700 dark:text-gray-300">{skill}</span>
-  </motion.div>
-))}
+                    <motion.div
+                      key={skill}
+                      custom={idx}
+                      variants={starburstItem}
+                      initial="hidden"
+                      whileInView="show"
+                      animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0 } : undefined}
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={{ scale: 1.03 }}
+                      className="flex items-center space-x-2"
+                    >
+                      {backendIcons[skill] || <div className="w-2 h-2 bg-green-500 rounded-full"></div>}
+                      <span className="text-gray-700 dark:text-gray-300">{skill}</span>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
-              
+
               {/* Database */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -548,24 +545,24 @@ export default function Home() {
                 </h3>
                 <div className="space-y-3">
                   {['MongoDB', 'MySQL', 'Firebase', 'Redis'].map((skill, idx) => (
-  <motion.div
-    key={skill}
-    custom={idx}
-    variants={starburstItem}
-    initial="hidden"
-    whileInView="show"
-    animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0, filter: 'blur(0px)' } : undefined}
-    viewport={{ once: true, amount: 0.2 }}
-    whileHover={{ scale: 1.03 }}
-    className="flex items-center space-x-2"
-  >
-    {databaseIcons[skill] || <div className="w-2 h-2 bg-purple-500 rounded-full"></div>}
-    <span className="text-gray-700 dark:text-gray-300">{skill}</span>
-  </motion.div>
-))}
+                    <motion.div
+                      key={skill}
+                      custom={idx}
+                      variants={starburstItem}
+                      initial="hidden"
+                      whileInView="show"
+                      animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0 } : undefined}
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={{ scale: 1.03 }}
+                      className="flex items-center space-x-2"
+                    >
+                      {databaseIcons[skill] || <div className="w-2 h-2 bg-purple-500 rounded-full"></div>}
+                      <span className="text-gray-700 dark:text-gray-300">{skill}</span>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
-              
+
               {/* Tools */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -580,21 +577,21 @@ export default function Home() {
                 </h3>
                 <div className="space-y-3">
                   {['Git', 'GitHub', 'VS Code', 'Postman', 'Vercel', 'Figma', 'C', 'C++', 'Java'].map((skill, idx) => (
-  <motion.div
-    key={skill}
-    custom={idx}
-    variants={starburstItem}
-    initial="hidden"
-    whileInView="show"
-    animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0, filter: 'blur(0px)' } : undefined}
-    viewport={{ once: true, amount: 0.2 }}
-    whileHover={{ scale: 1.03 }}
-    className="flex items-center space-x-2"
-  >
-    {toolsIcons[skill] || <div className="w-2 h-2 bg-gray-500 rounded-full"></div>}
-    <span className="text-gray-700 dark:text-gray-300">{skill}</span>
-  </motion.div>
-))}
+                    <motion.div
+                      key={skill}
+                      custom={idx}
+                      variants={starburstItem}
+                      initial="hidden"
+                      whileInView="show"
+                      animate={prefersReducedMotion ? { opacity: 1, scale: 1, rotate: 0 } : undefined}
+                      viewport={{ once: true, amount: 0.2 }}
+                      whileHover={{ scale: 1.03 }}
+                      className="flex items-center space-x-2"
+                    >
+                      {toolsIcons[skill] || <div className="w-2 h-2 bg-gray-500 rounded-full"></div>}
+                      <span className="text-gray-700 dark:text-gray-300">{skill}</span>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
             </div>
@@ -616,14 +613,14 @@ export default function Home() {
               <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center">
                 Featured Projects
               </h2>
-              
+
               <div className="grid md:grid-cols-2 gap-8">
                 {projects.map((p, idx) => (
                   <motion.div
                     key={p.id}
-                    initial={{ opacity: 0, y: 20, filter: 'blur(8px)', scale: 0.98 }}
-                    whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 }}
-                    animate={prefersReducedMotion ? { opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 } : undefined}
+                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    animate={prefersReducedMotion ? { opacity: 1, y: 0, scale: 1 } : undefined}
                     transition={{ duration: 0.7, delay: 0.1 + idx * 0.1 }}
                     viewport={{ once: true, amount: 0.3 }}
                     className="relative group bg-gray-50 dark:!bg-transparent backdrop-blur-sm rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 cursor-pointer ring-1 ring-gray-300 dark:ring-white/15 hover:ring-2 hover:ring-blue-400 dark:hover:ring-blue-500/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -688,23 +685,23 @@ export default function Home() {
                       </div>
                       <div className="flex space-x-4">
                         {p.githubUrl && (
-                          <a 
+                          <a
                             href={p.githubUrl}
-                            target="_blank" 
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:underline"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
                             </svg>
                             <span>GitHub</span>
                           </a>
                         )}
                         {p.liveUrl && (
-                          <a 
+                          <a
                             href={p.liveUrl}
-                            target="_blank" 
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center space-x-2 text-green-600 dark:text-green-400 hover:underline"
                             onClick={(e) => e.stopPropagation()}
@@ -736,126 +733,202 @@ export default function Home() {
               viewport={{ once: true, amount: 0.2 }}
               className="max-w-6xl mx-auto"
             >
-            <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center">
-              Certificates & Achievements
-            </h2>
-            
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Certificate 1 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                viewport={{ once: true, amount: 0.2 }}
-                className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
-              >
-                <div className="text-center mb-4">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                    </svg>
+              <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center">
+                Certificates & Achievements
+              </h2>
+
+              <div className="grid md:grid-cols-3 gap-8">
+                {/* Certificate 1 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <div className="text-center mb-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                      Data Science Master
+                    </h3>
+                    <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
+                      Altair
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Issued: Sep–Nov 2023
+                    </p>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                    Data Science Master
-                  </h3>
-                  <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
-                    Altair
+                  <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                    Hands-on program covering data analysis, visualization, and ML foundations using Python, Pandas, NumPy, and Altair.
                   </p>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    Issued: Sep–Nov 2023
-                  </p>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
-                  Hands-on program covering data analysis, visualization, and ML foundations using Python, Pandas, NumPy, and Altair.
-                </p>
-                <div className="mt-4 flex justify-center">
-                  <button
-                    onClick={() => { setCertPreviewSrc('/certificates/Data Science Master (Altair).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/112uGh3Y8kk18aQA5-CTrxEYM7lCfo7dX/view?usp=drive_link') }}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                    aria-label="Preview Data Science Master certificate"
-                  >
-                    Preview
-                  </button>
-                </div>
-              </motion.div>
-              
-              {/* Certificate 2 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                viewport={{ once: true, amount: 0.2 }}
-                className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
-              >
-                <div className="text-center mb-4">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                    </svg>
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={() => { setCertPreviewSrc('/certificates/Data Science Master (Altair).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/112uGh3Y8kk18aQA5-CTrxEYM7lCfo7dX/view?usp=drive_link') }}
+                      className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      aria-label="Preview Data Science Master certificate"
+                    >
+                      Preview
+                    </button>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                    Coding World Cup — AIR 519
-                  </h3>
-                  <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
-                    Coding World Cup
-                  </p>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    Issued: Nov 2023
-                  </p>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
-                  Achieved All India Rank 519 in a national-level coding competition.
-                </p>
-                <div className="mt-4 flex justify-center">
-                  <button
-                    onClick={() => { setCertPreviewSrc('/certificates/Coding World Cup (Coding Ninjas).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/1Aqzj_E1fH9AoFmymauLDcuc7K9dQ8DrV/view?usp=drive_link') }}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                    aria-label="Preview Coding World Cup certificate"
-                  >
-                    Preview
-                  </button>
-                </div>
-              </motion.div>
-              
-              {/* Certificate 3 */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                viewport={{ once: true, amount: 0.2 }}
-                className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
-              >
-                <div className="text-center mb-4">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                    </svg>
+                </motion.div>
+
+                {/* Certificate 2 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <div className="text-center mb-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                      Coding World Cup — AIR 519
+                    </h3>
+                    <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
+                      Coding World Cup
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Issued: Nov 2023
+                    </p>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
-                    Data Analytics Process Automation
-                  </h3>
-                  <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
-                    Certification Program
+                  <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                    Achieved All India Rank 519 in a national-level coding competition.
                   </p>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    Issued: Apr–Jun 2024
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={() => { setCertPreviewSrc('/certificates/Coding World Cup (Coding Ninjas).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/1Aqzj_E1fH9AoFmymauLDcuc7K9dQ8DrV/view?usp=drive_link') }}
+                      className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      aria-label="Preview Coding World Cup certificate"
+                    >
+                      Preview
+                    </button>
+                  </div>
+                </motion.div>
+
+                {/* Certificate 3 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <div className="text-center mb-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                      Data Analytics Process Automation
+                    </h3>
+                    <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
+                      Alteryx
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Issued: Apr–Jun 2024
+                    </p>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                    Automated data preparation and analytics workflows; hands-on with ETL, dashboards, and process automation.
                   </p>
-                </div>
-                <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
-                  Automated data preparation and analytics workflows; hands-on with ETL, dashboards, and process automation.
-                </p>
-                <div className="mt-4 flex justify-center">
-                  <button
-                    onClick={() => { setCertPreviewSrc('/certificates/Data Analytics Process Automation (Alteryx).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/1AhpM9MEAQUicuyRGkoNudet0futEbFR1/view?usp=drive_link') }}
-                    className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-                    aria-label="Preview Data Analytics Process Automation certificate"
-                  >
-                    Preview
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={() => { setCertPreviewSrc('/certificates/Data Analytics Process Automation (Alteryx).jpeg'); setCertPreviewHref('https://drive.google.com/file/d/1AhpM9MEAQUicuyRGkoNudet0futEbFR1/view?usp=drive_link') }}
+                      className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      aria-label="Preview Data Analytics Process Automation certificate"
+                    >
+                      Preview
+                    </button>
+                  </div>
+                </motion.div>
+
+                {/* Certificate 4 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <div className="text-center mb-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                      ServiceNow Virtual Internship Program
+                    </h3>
+                    <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
+                      ServiceNow University
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Issued: May 2026
+                    </p>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                    Built expertise in ServiceNow Administration, workflow automation, Agentic AI, and testing frameworks while strengthening enterprise platform and process optimization skills.
+                  </p>
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={() => { setCertPreviewSrc('/certificates/ServiceNow Virtual Internship Certficate.png'); setCertPreviewHref('https://drive.google.com/file/d/11Fq_bFLvUiMqNy_P6zvOMVmzZTTLQiuc/view?usp=drive_link') }}
+                      className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      aria-label="Preview Data Analytics Process Automation certificate"
+                    >
+                      Preview
+                    </button>
+                  </div>
+                </motion.div>
+
+                {/* Certificate 5 */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  className="glass-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <div className="text-center mb-4">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                      TCS Codevita Season13
+                    </h3>
+                    <p className="text-blue-600 dark:text-blue-400 font-semibold mb-2">
+                      TCS
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                      Issued: May 2026
+                    </p>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
+                    Secured Global Rank 3531 in an international-level coding competition.
+                  </p>
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={() => { setCertPreviewSrc('/certificates/TCS Codevita S13 Certficate.png'); setCertPreviewHref('https://drive.google.com/file/d/1AOvuVFid8HpQJSWUqibu-GHIhZyCHcLH/view?usp=drive_link') }}
+                      className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                      aria-label="Preview Data Analytics Process Automation certificate"
+                    >
+                      Preview
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
           </ParallaxScene>
         </div>
       </section>
@@ -873,7 +946,7 @@ export default function Home() {
             <h2 className="text-4xl font-bold text-gray-800 dark:text-white mb-12 text-center">
               Get In Touch
             </h2>
-            
+
             <div className="grid md:grid-cols-2 gap-12">
               {/* Contact Form */}
               <motion.div
@@ -902,7 +975,7 @@ export default function Home() {
                     </div>
                   </motion.div>
                 )}
-                
+
                 {submitStatus === 'error' && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
@@ -932,11 +1005,10 @@ export default function Home() {
                       value={formData.name}
                       onChange={handleInputChange}
                       disabled={isSubmitting}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors ${
-                        errors.name 
-                          ? 'border-red-500 dark:border-red-400' 
-                          : 'border-gray-300 dark:border-gray-600'
-                      } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors ${errors.name
+                        ? 'border-red-500 dark:border-red-400'
+                        : 'border-gray-300 dark:border-gray-600'
+                        } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                       placeholder="Your Name"
                     />
                     {errors.name && (
@@ -949,7 +1021,7 @@ export default function Home() {
                       </motion.p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Email
@@ -961,11 +1033,10 @@ export default function Home() {
                       value={formData.email}
                       onChange={handleInputChange}
                       disabled={isSubmitting}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors ${
-                        errors.email 
-                          ? 'border-red-500 dark:border-red-400' 
-                          : 'border-gray-300 dark:border-gray-600'
-                      } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-colors ${errors.email
+                        ? 'border-red-500 dark:border-red-400'
+                        : 'border-gray-300 dark:border-gray-600'
+                        } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                       placeholder={contact.email}
                     />
                     {errors.email && (
@@ -978,7 +1049,7 @@ export default function Home() {
                       </motion.p>
                     )}
                   </div>
-                  
+
                   <div>
                     <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Message
@@ -990,11 +1061,10 @@ export default function Home() {
                       onChange={handleInputChange}
                       disabled={isSubmitting}
                       rows={5}
-                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none transition-colors ${
-                        errors.message 
-                          ? 'border-red-500 dark:border-red-400' 
-                          : 'border-gray-300 dark:border-gray-600'
-                      } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white resize-none transition-colors ${errors.message
+                        ? 'border-red-500 dark:border-red-400'
+                        : 'border-gray-300 dark:border-gray-600'
+                        } ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                       placeholder="Your message..."
                     />
                     {errors.message && (
@@ -1007,17 +1077,16 @@ export default function Home() {
                       </motion.p>
                     )}
                   </div>
-                  
+
                   <motion.button
                     type="submit"
                     disabled={isSubmitting}
                     whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
                     whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
-                    className={`w-full px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center ${
-                      isSubmitting
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 hover:bg-blue-700'
-                    } text-white`}
+                    className={`w-full px-8 py-3 rounded-lg font-semibold transition-colors flex items-center justify-center ${isSubmitting
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                      } text-white`}
                   >
                     {isSubmitting ? (
                       <>
@@ -1033,7 +1102,7 @@ export default function Home() {
                   </motion.button>
                 </form>
               </motion.div>
-              
+
               {/* Contact Info & Social Links */}
               <motion.div
                 initial={{ opacity: 0, x: 50 }}
@@ -1047,11 +1116,11 @@ export default function Home() {
                     Let&apos;s connect!
                   </h3>
                   <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
-                    I&apos;m always open to discussing new opportunities, interesting projects, 
-                    or just having a chat about technology. Feel free to reach out!
+                    I&apos;m always open to discussing new opportunities, interesting projects,
+                    or just having a chat about technology. Feel free to reach out anytime!
                   </p>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
@@ -1066,7 +1135,7 @@ export default function Home() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
                       <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1079,55 +1148,53 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div>
                   <h4 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
                     Follow me on
                   </h4>
                   <div className="flex space-x-4">
-                    <a 
-                      href={contact.linkedin} 
-                      target="_blank" 
+                    <a
+                      href={contact.linkedin}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="w-12 h-12 bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center justify-center transition-colors"
+                      aria-label="LinkedIn"
                     >
-                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                      </svg>
+                      <SiLinkedin className="w-6 h-6 text-white" />
                     </a>
-                    
-                    <a 
-                      href={contact.github} 
-                      target="_blank" 
+
+                    <a
+                      href={contact.github}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="w-12 h-12 bg-gray-800 hover:bg-gray-900 rounded-lg flex items-center justify-center transition-colors"
+                      aria-label="GitHub"
                     >
-                      <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-                      </svg>
+                      <SiGithub className="w-6 h-6 text-white" />
                     </a>
-                    
-                    <a 
+
+                    <a
                       href={contact.leetcode}
-                      target="_blank" 
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="w-12 h-12 bg-orange-500 hover:bg-orange-600 rounded-lg flex items-center justify-center transition-colors"
                       aria-label="LeetCode"
                     >
                       <SiLeetcode className="w-6 h-6 text-white" />
                     </a>
-                    <a 
+                    <a
                       href={contact.geeksforgeeks}
-                      target="_blank" 
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="w-12 h-12 bg-green-600 hover:bg-green-700 rounded-lg flex items-center justify-center transition-colors"
                       aria-label="GeeksforGeeks"
                     >
                       <SiGeeksforgeeks className="w-6 h-6 text-white" />
                     </a>
-                    <a 
+                    <a
                       href={contact.portfolio}
-                      target="_blank" 
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="w-12 h-12 bg-slate-700 hover:bg-slate-800 rounded-lg flex items-center justify-center transition-colors"
                       aria-label="Portfolio"
@@ -1191,7 +1258,7 @@ export default function Home() {
                   Preview in new tab
                 </a>
               </div>
-              
+
               <div className="relative w-full h-[70vh] mx-auto rounded-lg overflow-hidden">
                 <Image
                   src={certPreviewSrc ?? ''}

@@ -60,13 +60,15 @@ export default function BackgroundLayer() {
         aria-hidden="true"
       >
         {isDark ? (
-          <>
+          <div className="absolute inset-0 bg-[#070712]" style={{
+            background: 'radial-gradient(ellipse 120% 80% at 50% 20%, #0b1028 0%, #0b0f2b 30%, #090a1a 60%, #070712 100%)'
+          }}>
             {/* Global starfield for dark mode (perf-aware) */}
             <Starfield density={starDensity} starSize={starSize} overlayOpacity={overlayOpacity} />
             {/* Optional decorative layers, skip in perf mode */}
             {!perfMode && <SpaceObjects />}
             {!perfMode && <CosmicAccents />}
-          </>
+          </div>
         ) : (
           <EarthAccents />
         )}

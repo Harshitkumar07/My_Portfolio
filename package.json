@@ -1,6 +1,6 @@
 {
   "name": "myportfolio",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Portfolio website built with Next.js, TypeScript, Tailwind CSS, and Framer Motion",
   "private": true,
   "scripts": {
@@ -23,11 +23,15 @@
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
     "framer-motion": "^12.23.12",
-    "next": "15.4.10",
+    "next": "15.5.15",
     "next-themes": "^0.4.6",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "react-icons": "^5.5.0"
+    "react": "19.1.2",
+    "react-dom": "19.1.2",
+    "react-icons": "^5.5.0",
+    "sharp": "^0.34.5"
+  },
+  "overrides": {
+    "postcss": "^8.5.13"
   },
   "devDependencies": {
     "@types/node": "^24.2.0",
@@ -36,7 +40,7 @@
     "autoprefixer": "^10.4.21",
     "eslint": "^9.32.0",
     "eslint-config-next": "^15.4.5",
-    "postcss": "^8.5.6",
+    "postcss": "^8.5.13",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.9.2"
   }

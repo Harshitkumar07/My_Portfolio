@@ -20,7 +20,9 @@ export async function sendContactEmail(payload: ContactPayload): Promise<void> {
     templateId,
     {
       name: payload.name,
+      from_name: payload.name,
       email: payload.email,
+      reply_to: payload.email,
       message: payload.message,
     },
     publicKey

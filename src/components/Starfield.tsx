@@ -84,10 +84,8 @@ export default function Starfield({ className = "", density = "medium", color = 
 
     const paint = (tSec: number) => {
       const { width, height } = canvas.getBoundingClientRect()
-      // clear and paint dark base
+      // clear base transparently
       ctx.clearRect(0, 0, width, height)
-      ctx.fillStyle = '#070814'
-      ctx.fillRect(0, 0, width, height)
 
       const stars = starsRef.current || []
       // slight drift based on time
@@ -124,10 +122,14 @@ export default function Starfield({ className = "", density = "medium", color = 
       }
     }
 
+    let resizeTimeout: NodeJS.Timeout | null = null
     const onResize = () => {
-      cancel()
-      gen()
-      draw(0)
+      if (resizeTimeout) clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(() => {
+        cancel()
+        gen()
+        draw(0)
+      }, 200)
     }
 
     const cancel = () => {
@@ -152,6 +154,7 @@ export default function Starfield({ className = "", density = "medium", color = 
     window.addEventListener("resize", onResize)
     document.addEventListener("visibilitychange", onVisibility)
     return () => {
+      if (resizeTimeout) clearTimeout(resizeTimeout)
       window.removeEventListener("resize", onResize)
       document.removeEventListener("visibilitychange", onVisibility)
       cancel()

@@ -77,9 +77,8 @@ export default function SpaceObjects() {
 
     function step() {
       if (!ctx) return
-      // subtle transparent fill for motion trails
-      ctx.fillStyle = 'rgba(10, 10, 26, 0.4)'
-      ctx.fillRect(0, 0, width, height)
+      // Use clearRect instead of destination-out for maximum performance
+      ctx.clearRect(0, 0, width, height)
 
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i]
@@ -119,16 +118,13 @@ export default function SpaceObjects() {
 
     const handleResize = () => {
       resize()
-      // clear to base background color immediately on resize
       if (!ctx) return
-      ctx.fillStyle = 'rgb(10, 10, 26)'
-      ctx.fillRect(0, 0, width, height)
+      ctx.clearRect(0, 0, width, height)
     }
 
     resize()
-    // prime background
-    ctx.fillStyle = 'rgb(10, 10, 26)'
-    ctx.fillRect(0, 0, width, height)
+    // prime background (transparent)
+    ctx.clearRect(0, 0, width, height)
 
     animationId = window.requestAnimationFrame(step)
     window.addEventListener('resize', handleResize)
@@ -144,9 +140,7 @@ export default function SpaceObjects() {
       className="pointer-events-none fixed inset-0 z-0"
       aria-hidden="true"
       style={{
-        background:
-          'radial-gradient(ellipse 120% 80% at 50% 20%, #0b1028 0%, #0b0f2b 30%, #090a1a 60%, #070712 100%)',
-        transition: 'opacity 0.6s ease-in-out, background 0.6s ease-in-out',
+        transition: 'opacity 0.6s ease-in-out',
       }}
     >
       <canvas ref={canvasRef} className="w-full h-full" />

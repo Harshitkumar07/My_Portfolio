@@ -20,22 +20,30 @@ export default function Navigation() {
   const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(window.scrollY > 50)
 
-      const sections = navItems.map(item => item.href.substring(1))
-      const scrollPosition = window.scrollY + 100
+          const sections = navItems.map(item => item.href.substring(1))
+          const scrollPosition = window.scrollY + 100
 
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const section = document.getElementById(sections[i])
-        if (section && section.offsetTop <= scrollPosition) {
-          setActiveSection(sections[i])
-          break
-        }
+          for (let i = sections.length - 1; i >= 0; i--) {
+            const section = document.getElementById(sections[i])
+            if (section && section.offsetTop <= scrollPosition) {
+              setActiveSection(sections[i])
+              break
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     }
 
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()
 
     return () => window.removeEventListener('scroll', handleScroll)

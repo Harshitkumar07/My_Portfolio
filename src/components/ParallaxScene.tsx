@@ -26,6 +26,7 @@ interface ParallaxSceneProps {
 export default function ParallaxScene({ children, className = '', intensity = 6, showStars = false, solidBase = false, layer = 'content', starDensity = 'low', starMode = 'css', starSize = 1, starOverlayOpacity = 0.12 }: ParallaxSceneProps) {
   const prefersReducedMotion = useReducedMotion()
   const ref = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const starsRef = useRef<HTMLDivElement>(null)
   const rafRef = useRef<number | null>(null)
   const latest = useRef({ x: 0, y: 0 })
@@ -79,7 +80,7 @@ export default function ParallaxScene({ children, className = '', intensity = 6,
       const ty = latest.current.y * intensity
       // Apply transform to the selected layer
       const moveContent = layer === 'content' || !showStars
-      const elToMove = moveContent ? ref.current : starsRef.current
+      const elToMove = moveContent ? contentRef.current : starsRef.current
       if (elToMove) {
         elToMove.style.transform = `translate3d(${tx}px, ${ty}px, 0)`
       }
@@ -94,7 +95,7 @@ export default function ParallaxScene({ children, className = '', intensity = 6,
     <div
       ref={ref}
       className={className}
-      style={{ willChange: layer === 'content' ? 'transform' as const : undefined, position: 'relative', overflow: 'hidden' }}
+      style={{ position: 'relative', overflow: 'hidden' }}
     >
       {showStars && (
         <div aria-hidden ref={starsRef} className="pointer-events-none absolute inset-0 z-0" style={{ willChange: layer === 'background' ? 'transform' as const : undefined }}>
@@ -141,7 +142,7 @@ export default function ParallaxScene({ children, className = '', intensity = 6,
           )}
         </div>
       )}
-      <div className="relative z-10">
+      <div ref={contentRef} className="relative z-10" style={{ willChange: 'transform' }}>
         {children}
       </div>
     </div>
